@@ -3,6 +3,7 @@ import { useUpload } from "@workspace/object-storage-web";
 import { Button } from "@/components/ui/button";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import { resolveImageSrc } from "@/lib/image-url";
+import { useToast } from "@/hooks/use-toast";
 
 interface ImageUploadProps {
   value?: string | null;
@@ -12,6 +13,7 @@ interface ImageUploadProps {
 
 export function ImageUpload({ value, onChange, label = "Product image" }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
   const { uploadFile, isUploading } = useUpload({
     getRequestHeaders: () => {
       const t = typeof window !== "undefined" ? localStorage.getItem("agrimarket_token") : null;
@@ -19,7 +21,17 @@ export function ImageUpload({ value, onChange, label = "Product image" }: ImageU
       if (t) headers.Authorization = `Bearer ${t}`;
       return headers;
     },
-    onSuccess: (res) => onChange(res.objectPath),
+    onSuccess: (res) => {
+      onChange(res.objectPath);
+      toast({ title: "Image uploaded" });
+    },
+    onError: (err) => {
+      toast({
+        title: "Upload failed",
+        description: err.message || "Could not upload image. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   const previewSrc = resolveImageSrc(value);

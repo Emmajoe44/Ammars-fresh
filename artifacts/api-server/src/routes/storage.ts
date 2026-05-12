@@ -85,7 +85,11 @@ router.get("/storage/public-objects/*filePath", async (req: Request, res: Respon
  * These are served from a separate path from /public-objects and can optionally
  * be protected with authentication or ACL checks based on the use case.
  */
-router.get("/storage/objects/*path", authMiddleware, async (req: Request, res: Response) => {
+// NOTE: Intentionally public — product images are shown to anonymous visitors on
+// the landing page and `<img>` tags cannot send Authorization headers. The upload
+// endpoint above (POST /storage/uploads/request-url) is auth-gated, so only
+// logged-in users can put new objects into the bucket.
+router.get("/storage/objects/*path", async (req: Request, res: Response) => {
   try {
     const raw = req.params.path;
     const wildcardPath = Array.isArray(raw) ? raw.join("/") : raw;
