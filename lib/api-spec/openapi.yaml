@@ -1,22 +1,35 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: AgriMarket South Sudan API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: users
+    description: User management
+  - name: products
+    description: Product catalog
+  - name: orders
+    description: Order management
+  - name: trucks
+    description: Truck and driver tracking
+  - name: categories
+    description: Product categories
+  - name: analytics
+    description: Analytics and dashboards
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +37,627 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users (admin)
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [admin, farmer, retailer]
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+
+  /users/me:
+    get:
+      operationId: getMe
+      tags: [users]
+      summary: Get current user profile
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    patch:
+      operationId: updateMe
+      tags: [users]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      summary: Delete user (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List product categories
+      responses:
+        "200":
+          description: Categories list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+    post:
+      operationId: createCategory
+      tags: [categories]
+      summary: Create a category (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryInput"
+      responses:
+        "201":
+          description: Created category
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List products
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+        - name: farmerId
+          in: query
+          schema:
+            type: integer
+        - name: available
+          in: query
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: currency
+          in: query
+          schema:
+            type: string
+            enum: [SSP, USD]
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Products list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResponse"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create a product (farmer)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Created product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/featured:
+    get:
+      operationId: listFeaturedProducts
+      tags: [products]
+      summary: Get featured/popular products for retailer home
+      responses:
+        "200":
+          description: Featured products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    patch:
+      operationId: updateProduct
+      tags: [products]
+      summary: Update product (farmer/admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /products/{id}/toggle-availability:
+    patch:
+      operationId: toggleProductAvailability
+      tags: [products]
+      summary: Toggle product availability (farmer)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List orders
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, assigned, in_transit, delivered, cancelled]
+        - name: retailerId
+          in: query
+          schema:
+            type: integer
+        - name: truckId
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Orders list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderListResponse"
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Place a new order (retailer)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Created order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Get order by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+    patch:
+      operationId: updateOrder
+      tags: [orders]
+      summary: Update order status (admin/driver)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderUpdate"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{id}/assign-truck:
+    patch:
+      operationId: assignTruckToOrder
+      tags: [orders]
+      summary: Assign truck/driver to order (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TruckAssignment"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /trucks:
+    get:
+      operationId: listTrucks
+      tags: [trucks]
+      summary: List trucks with GPS location
+      responses:
+        "200":
+          description: Trucks list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Truck"
+    post:
+      operationId: createTruck
+      tags: [trucks]
+      summary: Register a truck (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TruckInput"
+      responses:
+        "201":
+          description: Created truck
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Truck"
+
+  /trucks/{id}:
+    get:
+      operationId: getTruck
+      tags: [trucks]
+      summary: Get truck by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Truck
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Truck"
+    patch:
+      operationId: updateTruck
+      tags: [trucks]
+      summary: Update truck location/status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TruckUpdate"
+      responses:
+        "200":
+          description: Updated truck
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Truck"
+
+  /analytics/admin-stats:
+    get:
+      operationId: getAdminStats
+      tags: [analytics]
+      summary: Admin dashboard summary stats
+      responses:
+        "200":
+          description: Admin stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /analytics/demand:
+    get:
+      operationId: getDemandAnalytics
+      tags: [analytics]
+      summary: Product demand analytics over time
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        "200":
+          description: Demand data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DemandDataPoint"
+
+  /analytics/farmer-stats:
+    get:
+      operationId: getFarmerStats
+      tags: [analytics]
+      summary: Farmer sales dashboard stats
+      responses:
+        "200":
+          description: Farmer stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FarmerStats"
+
+  /analytics/low-stock:
+    get:
+      operationId: getLowStockAlerts
+      tags: [analytics]
+      summary: Products with low stock levels
+      responses:
+        "200":
+          description: Low stock products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /pricing:
+    get:
+      operationId: listPricing
+      tags: [analytics]
+      summary: Get current pricing rules (admin)
+      responses:
+        "200":
+          description: Pricing rules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PricingRule"
+    post:
+      operationId: createPricingRule
+      tags: [analytics]
+      summary: Create a pricing rule (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PricingRuleInput"
+      responses:
+        "201":
+          description: Created pricing rule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PricingRule"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +665,514 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    LoginInput:
+      type: object
+      required: [phone, password]
+      properties:
+        phone:
+          type: string
+        password:
+          type: string
+
+    RegisterInput:
+      type: object
+      required: [name, phone, password, role]
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [farmer, retailer]
+        farmName:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        language:
+          type: string
+          enum: [en, ar]
+          default: en
+
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      required: [id, name, phone, role, language, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [admin, farmer, retailer]
+        farmName:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        locationLat:
+          type: ["number", "null"]
+        locationLng:
+          type: ["number", "null"]
+        language:
+          type: string
+          enum: [en, ar]
+        currency:
+          type: string
+          enum: [SSP, USD]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        farmName:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        locationLat:
+          type: ["number", "null"]
+        locationLng:
+          type: ["number", "null"]
+        language:
+          type: string
+          enum: [en, ar]
+        currency:
+          type: string
+          enum: [SSP, USD]
+        isActive:
+          type: boolean
+
+    UserListResponse:
+      type: object
+      required: [users, total]
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        total:
+          type: integer
+
+    Category:
+      type: object
+      required: [id, name, nameAr, icon]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameAr:
+          type: string
+        icon:
+          type: string
+        productCount:
+          type: integer
+
+    CategoryInput:
+      type: object
+      required: [name, nameAr, icon]
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        icon:
+          type: string
+
+    Product:
+      type: object
+      required: [id, name, nameAr, categoryId, farmerId, quantity, unit, priceSSP, priceUSD, available, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: ["string", "null"]
+        categoryId:
+          type: integer
+        categoryName:
+          type: ["string", "null"]
+        farmerId:
+          type: integer
+        farmerName:
+          type: ["string", "null"]
+        farmName:
+          type: ["string", "null"]
+        quantity:
+          type: number
+        unit:
+          type: string
+        priceSSP:
+          type: number
+        priceUSD:
+          type: number
+        available:
+          type: boolean
+        harvestDate:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        qualityGrade:
+          type: string
+          enum: [A, B, C]
+        createdAt:
+          type: string
+
+    ProductInput:
+      type: object
+      required: [name, nameAr, categoryId, quantity, unit, priceSSP, priceUSD]
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: ["string", "null"]
+        categoryId:
+          type: integer
+        quantity:
+          type: number
+        unit:
+          type: string
+        priceSSP:
+          type: number
+        priceUSD:
+          type: number
+        harvestDate:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        qualityGrade:
+          type: string
+          enum: [A, B, C]
+
+    ProductUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: ["string", "null"]
+        categoryId:
+          type: integer
+        quantity:
+          type: number
+        unit:
+          type: string
+        priceSSP:
+          type: number
+        priceUSD:
+          type: number
+        available:
+          type: boolean
+        harvestDate:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        qualityGrade:
+          type: string
+          enum: [A, B, C]
+
+    ProductListResponse:
+      type: object
+      required: [products, total]
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        total:
+          type: integer
+
+    OrderItem:
+      type: object
+      required: [productId, quantity, priceSSP, priceUSD]
+      properties:
+        productId:
+          type: integer
+        productName:
+          type: ["string", "null"]
+        quantity:
+          type: number
+        unit:
+          type: ["string", "null"]
+        priceSSP:
+          type: number
+        priceUSD:
+          type: number
+
+    Order:
+      type: object
+      required: [id, retailerId, status, totalSSP, totalUSD, currency, items, createdAt]
+      properties:
+        id:
+          type: integer
+        retailerId:
+          type: integer
+        retailerName:
+          type: ["string", "null"]
+        truckId:
+          type: ["integer", "null"]
+        truckPlate:
+          type: ["string", "null"]
+        driverName:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, confirmed, assigned, in_transit, delivered, cancelled]
+        totalSSP:
+          type: number
+        totalUSD:
+          type: number
+        currency:
+          type: string
+          enum: [SSP, USD]
+        deliveryLocation:
+          type: ["string", "null"]
+        deliveryLat:
+          type: ["number", "null"]
+        deliveryLng:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    OrderInput:
+      type: object
+      required: [items, currency]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        currency:
+          type: string
+          enum: [SSP, USD]
+        deliveryLocation:
+          type: ["string", "null"]
+        deliveryLat:
+          type: ["number", "null"]
+        deliveryLng:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+
+    OrderUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, confirmed, assigned, in_transit, delivered, cancelled]
+        notes:
+          type: ["string", "null"]
+
+    TruckAssignment:
+      type: object
+      required: [truckId]
+      properties:
+        truckId:
+          type: integer
+
+    OrderListResponse:
+      type: object
+      required: [orders, total]
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+        total:
+          type: integer
+
+    Truck:
+      type: object
+      required: [id, plateNumber, driverName, driverPhone, status, createdAt]
+      properties:
+        id:
+          type: integer
+        plateNumber:
+          type: string
+        driverName:
+          type: string
+        driverPhone:
+          type: string
+        status:
+          type: string
+          enum: [available, in_transit, maintenance]
+        lat:
+          type: ["number", "null"]
+        lng:
+          type: ["number", "null"]
+        currentOrderId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    TruckInput:
+      type: object
+      required: [plateNumber, driverName, driverPhone]
+      properties:
+        plateNumber:
+          type: string
+        driverName:
+          type: string
+        driverPhone:
+          type: string
+
+    TruckUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [available, in_transit, maintenance]
+        lat:
+          type: ["number", "null"]
+        lng:
+          type: ["number", "null"]
+        driverName:
+          type: string
+        driverPhone:
+          type: string
+
+    AdminStats:
+      type: object
+      required: [totalOrders, totalRevenue, totalFarmers, totalRetailers, pendingOrders, activeOrders, deliveredToday, lowStockCount, totalProducts, trucksActive]
+      properties:
+        totalOrders:
+          type: integer
+        totalRevenue:
+          type: number
+        revenueSSP:
+          type: number
+        revenueUSD:
+          type: number
+        totalFarmers:
+          type: integer
+        totalRetailers:
+          type: integer
+        pendingOrders:
+          type: integer
+        activeOrders:
+          type: integer
+        deliveredToday:
+          type: integer
+        lowStockCount:
+          type: integer
+        totalProducts:
+          type: integer
+        trucksActive:
+          type: integer
+
+    DemandDataPoint:
+      type: object
+      required: [date, productName, orderCount, quantity]
+      properties:
+        date:
+          type: string
+        productName:
+          type: string
+        orderCount:
+          type: integer
+        quantity:
+          type: number
+
+    FarmerStats:
+      type: object
+      required: [totalProducts, activeProducts, totalSalesSSP, totalSalesUSD, ordersThisMonth, topProducts]
+      properties:
+        totalProducts:
+          type: integer
+        activeProducts:
+          type: integer
+        totalSalesSSP:
+          type: number
+        totalSalesUSD:
+          type: number
+        ordersThisMonth:
+          type: integer
+        topProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductSaleSummary"
+
+    ProductSaleSummary:
+      type: object
+      required: [productId, productName, totalQuantity, totalSSP, totalUSD]
+      properties:
+        productId:
+          type: integer
+        productName:
+          type: string
+        totalQuantity:
+          type: number
+        totalSSP:
+          type: number
+        totalUSD:
+          type: number
+
+    PricingRule:
+      type: object
+      required: [id, categoryId, minPriceSSP, maxPriceSSP, minPriceUSD, maxPriceUSD, updatedAt]
+      properties:
+        id:
+          type: integer
+        categoryId:
+          type: integer
+        categoryName:
+          type: ["string", "null"]
+        minPriceSSP:
+          type: number
+        maxPriceSSP:
+          type: number
+        minPriceUSD:
+          type: number
+        maxPriceUSD:
+          type: number
+        updatedAt:
+          type: string
+
+    PricingRuleInput:
+      type: object
+      required: [categoryId, minPriceSSP, maxPriceSSP, minPriceUSD, maxPriceUSD]
+      properties:
+        categoryId:
+          type: integer
+        minPriceSSP:
+          type: number
+        maxPriceSSP:
+          type: number
+        minPriceUSD:
+          type: number
+        maxPriceUSD:
+          type: number

@@ -1,0 +1,106 @@
+import { useAuth } from "@/contexts/AuthContext";
+import { useLang } from "@/contexts/LangContext";
+import { useGetMe, getGetMeQueryKey, useUpdateMe } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { AppLayout } from "@/components/Layout";
+import { useForm } from "react-hook-form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { User, MapPin, Globe, DollarSign, Phone } from "lucide-react";
+
+export default function RetailerProfile() {
+  const { user, updateUser } = useAuth();
+  const { t, lang, setLang } = useLang();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { data: me } = useGetMe({ query: { queryKey: getGetMeQueryKey() } });
+  const updateMe = useUpdateMe();
+
+  const form = useForm({
+    values: { name: me?.name ?? "", location: me?.location ?? "", currency: me?.currency ?? "SSP", language: me?.language ?? "en" },
+  });
+
+  const onSubmit = (values: any) => {
+    updateMe.mutate({ data: values }, {
+      onSuccess: (updated) => {
+        updateUser(updated as any);
+        queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
+        if (updated.language !== lang) setLang(updated.language as "en" | "ar");
+        toast({ title: t("Profile updated", "تم تحديث الملف") });
+      },
+    });
+  };
+
+  return (
+    <AppLayout>
+      <div className="p-4 md:p-6 pb-20 md:pb-8 max-w-lg mx-auto">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <User className="w-8 h-8 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-extrabold text-foreground">{me?.name}</h1>
+            <p className="text-sm text-muted-foreground capitalize">{me?.role}</p>
+          </div>
+        </div>
+
+        <div className="bg-card border border-border rounded-2xl p-5">
+          <h2 className="font-bold text-foreground mb-4">{t("Edit Profile", "تعديل الملف")}</h2>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField control={form.control} name="name" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1.5"><User className="w-3.5 h-3.5" />{t("Name", "الاسم")}</FormLabel>
+                  <FormControl><Input data-testid="input-profile-name" {...field} /></FormControl>
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="location" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" />{t("Location", "الموقع")}</FormLabel>
+                  <FormControl><Input placeholder={t("Your market location", "موقع السوق")} data-testid="input-profile-location" {...field} /></FormControl>
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="currency" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1.5"><DollarSign className="w-3.5 h-3.5" />{t("Preferred currency", "العملة المفضلة")}</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger data-testid="select-currency"><SelectValue /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      <SelectItem value="SSP">South Sudanese Pound (SSP)</SelectItem>
+                      <SelectItem value="USD">US Dollar (USD)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="language" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" />{t("Language", "اللغة")}</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger data-testid="select-language"><SelectValue /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="ar">العربية</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )} />
+              <Button type="submit" className="w-full" disabled={updateMe.isPending} data-testid="button-save-profile">
+                {updateMe.isPending ? t("Saving...", "جاري الحفظ...") : t("Save Changes", "حفظ التغييرات")}
+              </Button>
+            </form>
+          </Form>
+        </div>
+
+        <div className="mt-4 bg-muted rounded-2xl p-4 text-sm">
+          <p className="flex items-center gap-2 text-muted-foreground">
+            <Phone className="w-4 h-4" />
+            {me?.phone}
+          </p>
+        </div>
+      </div>
+    </AppLayout>
+  );
+}
