@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ImageUpload } from "@/components/ImageUpload";
 
 export default function FarmerEditProduct() {
   const { user } = useAuth();
@@ -24,6 +25,7 @@ export default function FarmerEditProduct() {
   const { data: product, isLoading } = useGetProduct(id, { query: { enabled: !!id, queryKey: getGetProductQueryKey(id) } });
   const { data: categories } = useListCategories();
   const updateProduct = useUpdateProduct();
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const form = useForm({
     defaultValues: { name: "", nameAr: "", categoryId: 0, quantity: 0, unit: "kg", priceSSP: 0, priceUSD: 0, harvestDate: "", qualityGrade: "A" as "A" | "B" | "C", available: true },
@@ -43,11 +45,12 @@ export default function FarmerEditProduct() {
         qualityGrade: product.qualityGrade as "A" | "B" | "C",
         available: product.available,
       });
+      setImageUrl(product.imageUrl ?? null);
     }
   }, [product]);
 
   const onSubmit = (values: any) => {
-    updateProduct.mutate({ id, data: { ...values, harvestDate: values.harvestDate || null } }, {
+    updateProduct.mutate({ id, data: { ...values, harvestDate: values.harvestDate || null, imageUrl: imageUrl ?? null } }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListProductsQueryKey({ farmerId: user?.id }) });
         queryClient.invalidateQueries({ queryKey: getGetProductQueryKey(id) });
@@ -72,6 +75,7 @@ export default function FarmerEditProduct() {
         <div className="bg-card border border-border rounded-2xl p-5">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <ImageUpload value={imageUrl} onChange={setImageUrl} label={t("Product image", "صورة المنتج")} />
               <div className="grid grid-cols-2 gap-3">
                 <FormField control={form.control} name="name" render={({ field }) => (
                   <FormItem><FormLabel>{t("Name (EN)", "الاسم إنجليزي")}</FormLabel><FormControl><Input data-testid="input-name" {...field} /></FormControl></FormItem>

@@ -7,6 +7,7 @@ import { AppLayout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Leaf, ToggleLeft, ToggleRight } from "lucide-react";
+import { resolveImageSrc } from "@/lib/image-url";
 import { motion } from "framer-motion";
 
 export default function FarmerProducts() {
@@ -70,8 +71,12 @@ export default function FarmerProducts() {
                 className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3"
                 data-testid={`product-card-${product.id}`}
               >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Leaf className="w-6 h-6 text-primary/40" />
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  {resolveImageSrc(product.imageUrl) ? (
+                    <img src={resolveImageSrc(product.imageUrl)!} alt={product.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <Leaf className="w-6 h-6 text-primary/40" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">

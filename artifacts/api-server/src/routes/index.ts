@@ -7,6 +7,7 @@ import productsRouter from "./products";
 import ordersRouter from "./orders";
 import trucksRouter from "./trucks";
 import analyticsRouter from "./analytics";
+import storageRouter from "./storage";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(productsRouter);
 router.use(ordersRouter);
 router.use(trucksRouter);
 router.use(analyticsRouter);
+router.use(storageRouter);
 
 export default router;

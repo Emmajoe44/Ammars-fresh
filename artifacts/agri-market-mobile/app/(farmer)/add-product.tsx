@@ -23,6 +23,7 @@ import {
 
 import { Card } from "@/components/Card";
 import { Header } from "@/components/Header";
+import { ImageUploader } from "@/components/ImageUploader";
 import { useAuth } from "@/contexts/AuthContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -43,6 +44,7 @@ export default function FarmerAddProduct() {
   const [unit, setUnit] = useState("kg");
   const [grade, setGrade] = useState("A");
   const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const reset = () => {
     setName("");
@@ -54,6 +56,7 @@ export default function FarmerAddProduct() {
     setUnit("kg");
     setGrade("A");
     setDescription("");
+    setImageUrl(null);
   };
 
   const handleSubmit = async () => {
@@ -73,6 +76,7 @@ export default function FarmerAddProduct() {
           unit,
           qualityGrade: grade as ProductInputQualityGrade,
           description: description.trim() || null,
+          imageUrl: imageUrl ?? null,
         },
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -93,6 +97,11 @@ export default function FarmerAddProduct() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <Card>
+            <Text style={[styles.section, { color: colors.foreground }]}>Photo</Text>
+            <ImageUploader value={imageUrl} onChange={setImageUrl} label="" />
+          </Card>
+
+          <Card style={{ marginTop: 14 }}>
             <Text style={[styles.section, { color: colors.foreground }]}>Product details</Text>
 
             <Text style={[styles.lbl, { color: colors.foreground }]}>Name (English)</Text>

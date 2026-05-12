@@ -13,6 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AppLayout } from "@/components/Layout";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { resolveImageSrc } from "@/lib/image-url";
 import {
   Search,
   Package,
@@ -264,8 +265,8 @@ export default function AdminProducts() {
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-                              {p.imageUrl ? (
-                                <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                              {resolveImageSrc(p.imageUrl) ? (
+                                <img src={resolveImageSrc(p.imageUrl)!} alt={p.name} className="w-full h-full object-cover" />
                               ) : (
                                 <Leaf className="w-5 h-5 text-primary/50" />
                               )}
@@ -359,8 +360,8 @@ export default function AdminProducts() {
                       data-testid={`product-card-${p.id}`}
                     >
                       <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
-                        {p.imageUrl ? (
-                          <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                        {resolveImageSrc(p.imageUrl) ? (
+                          <img src={resolveImageSrc(p.imageUrl)!} alt={p.name} className="w-full h-full object-cover" />
                         ) : (
                           <Leaf className="w-6 h-6 text-primary/50" />
                         )}

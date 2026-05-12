@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft } from "lucide-react";
+import { ImageUpload } from "@/components/ImageUpload";
+import { useState } from "react";
 
 const schema = z.object({
   name: z.string().min(1, "Product name required"),
@@ -35,6 +37,7 @@ export default function FarmerAddProduct() {
   const queryClient = useQueryClient();
   const { data: categories } = useListCategories();
   const createProduct = useCreateProduct();
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -42,7 +45,7 @@ export default function FarmerAddProduct() {
   });
 
   const onSubmit = (values: z.infer<typeof schema>) => {
-    createProduct.mutate({ data: { ...values, description: values.description || null, harvestDate: values.harvestDate || null } }, {
+    createProduct.mutate({ data: { ...values, description: values.description || null, harvestDate: values.harvestDate || null, imageUrl: imageUrl ?? null } }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListProductsQueryKey({ farmerId: user?.id }) });
         toast({ title: t("Product added!", "تم إضافة المنتج!") });
@@ -65,6 +68,7 @@ export default function FarmerAddProduct() {
         <div className="bg-card border border-border rounded-2xl p-5">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <ImageUpload value={imageUrl} onChange={setImageUrl} label={t("Product image", "صورة المنتج")} />
               <div className="grid grid-cols-2 gap-3">
                 <FormField control={form.control} name="name" render={({ field }) => (
                   <FormItem>

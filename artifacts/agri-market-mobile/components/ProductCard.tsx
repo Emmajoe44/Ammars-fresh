@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { PJS } from "@/components/ui/typography";
 import { useColors } from "@/hooks/useColors";
@@ -18,14 +18,24 @@ interface ProductCardProps {
   unit: string;
   qualityGrade?: string;
   available: boolean;
+  imageUrl?: string | null;
   currency?: "SSP" | "USD";
   onAddToCart?: () => void;
   onPress?: () => void;
 }
 
+function resolveImage(value?: string | null): string | null {
+  if (!value) return null;
+  if (value.startsWith("/objects/")) {
+    const base = process.env.EXPO_PUBLIC_DOMAIN ? `https://${process.env.EXPO_PUBLIC_DOMAIN}` : "";
+    return `${base}/api/storage${value}`;
+  }
+  return value;
+}
+
 export function ProductCard({
   name, farmerName, farmName, priceSSP, priceUSD, quantity, unit,
-  qualityGrade, available, currency = "SSP", onAddToCart, onPress,
+  qualityGrade, available, imageUrl, currency = "SSP", onAddToCart, onPress,
 }: ProductCardProps) {
   const colors = useColors();
 
@@ -57,7 +67,11 @@ export function ProductCard({
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <Feather name="package" size={36} color={gradeColor} />
+        {resolveImage(imageUrl) ? (
+          <Image source={{ uri: resolveImage(imageUrl)! }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+        ) : (
+          <Feather name="package" size={36} color={gradeColor} />
+        )}
         {qualityGrade && (
           <View style={[styles.gradeTag, { backgroundColor: "#fff" }]}>
             <Text style={[styles.gradeText, { color: gradeColor, fontFamily: PJS.black }]}>

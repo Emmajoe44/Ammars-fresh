@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, ShoppingBasket, Leaf, SlidersHorizontal, X } from "lucide-react";
+import { resolveImageSrc } from "@/lib/image-url";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
@@ -120,8 +121,12 @@ export default function RetailerProducts() {
                   className="bg-card border border-border rounded-2xl p-4 flex flex-col gap-3"
                   data-testid={`card-product-${product.id}`}
                 >
-                  <div className="w-full h-20 rounded-xl bg-primary/8 flex items-center justify-center">
-                    <Leaf className="w-8 h-8 text-primary/25" />
+                  <div className="w-full h-20 rounded-xl bg-primary/8 flex items-center justify-center overflow-hidden">
+                    {resolveImageSrc(product.imageUrl) ? (
+                      <img src={resolveImageSrc(product.imageUrl)!} alt={product.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Leaf className="w-8 h-8 text-primary/25" />
+                    )}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between gap-1">
