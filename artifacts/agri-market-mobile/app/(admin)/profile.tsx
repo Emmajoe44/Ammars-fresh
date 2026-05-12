@@ -15,17 +15,18 @@ export default function AdminProfile() {
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const handleSignOut = () => {
+    const doSignOut = async () => {
+      if (Platform.OS !== "web") Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      await signOut();
+      router.replace("/(auth)/login");
+    };
+    if (Platform.OS === "web") {
+      if (typeof window !== "undefined" && window.confirm("Sign out of AgriMarket?")) doSignOut();
+      return;
+    }
     Alert.alert("Sign out", "Are you sure?", [
       { text: "Cancel", style: "cancel" },
-      {
-        text: "Sign out",
-        style: "destructive",
-        onPress: async () => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          await signOut();
-          router.replace("/(auth)/login");
-        },
-      },
+      { text: "Sign out", style: "destructive", onPress: doSignOut },
     ]);
   };
 
