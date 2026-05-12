@@ -2,11 +2,12 @@ import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useGetAdminStats } from "@workspace/api-client-react";
 import React from "react";
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { Card } from "@/components/Card";
 import { Header } from "@/components/Header";
 import { StatCard } from "@/components/StatCard";
+import { InfoRow, Pill, PJS, SectionLabel } from "@/components/ui";
 import { useAuth } from "@/contexts/AuthContext";
 import { useColors } from "@/hooks/useColors";
 import { useFormatRevenue } from "@/hooks/useFormatRevenue";
@@ -21,7 +22,12 @@ export default function AdminDashboard() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <Header title="Command Center" subtitle={user?.name ?? "Admin"} />
+      <Header
+        title="Command Center"
+        subtitle={`Welcome back, ${user?.name ?? "Admin"}`}
+        eyebrow="Live operations"
+        variant="gradient"
+      />
 
       <ScrollView
         contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
@@ -35,73 +41,64 @@ export default function AdminDashboard() {
         ) : (
           <>
             <View style={styles.statsRow}>
-              <StatCard label="Revenue" value={stats ? formatRevenue(stats.revenueSSP, stats.revenueUSD) : "—"} icon="trending-up" tone="primary" />
-              <StatCard label="Total orders" value={stats?.totalOrders ?? 0} icon="shopping-bag" tone="secondary" />
+              <StatCard label="Total revenue" value={stats ? formatRevenue(stats.revenueSSP, stats.revenueUSD) : "—"} icon="trending-up" tone="primary" variant="gradient" hint="Today" />
+              <StatCard label="Total orders" value={stats?.totalOrders ?? 0} icon="shopping-bag" tone="secondary" variant="gradient" hint="All time" />
             </View>
             <View style={styles.statsRow}>
-              <StatCard label="Pending" value={stats?.pendingOrders ?? 0} icon="clock" tone="warning" />
-              <StatCard label="Active" value={stats?.activeOrders ?? 0} icon="navigation" tone="info" />
+              <StatCard label="Pending" value={stats?.pendingOrders ?? 0} icon="clock" tone="warning" onPress={() => router.push("/(admin)/orders")} />
+              <StatCard label="Active" value={stats?.activeOrders ?? 0} icon="navigation" tone="info" onPress={() => router.push("/(admin)/orders")} />
             </View>
             <View style={styles.statsRow}>
-              <StatCard label="Farmers" value={stats?.totalFarmers ?? 0} icon="sun" tone="success" />
-              <StatCard label="Retailers" value={stats?.totalRetailers ?? 0} icon="users" tone="info" />
+              <StatCard label="Farmers" value={stats?.totalFarmers ?? 0} icon="sun" tone="success" onPress={() => router.push("/(admin)/users")} />
+              <StatCard label="Retailers" value={stats?.totalRetailers ?? 0} icon="users" tone="info" onPress={() => router.push("/(admin)/users")} />
             </View>
 
             {(stats?.lowStockCount ?? 0) > 0 && (
               <View style={[styles.alert, { backgroundColor: colors.warning + "18", borderColor: colors.warning + "40" }]}>
                 <Feather name="alert-triangle" size={18} color={colors.warning} />
-                <Text style={[styles.alertTxt, { color: colors.warning }]}>
+                <Text style={[styles.alertTxt, { color: colors.warning, fontFamily: PJS.bold }]}>
                   {stats?.lowStockCount} product{stats?.lowStockCount === 1 ? "" : "s"} running low on stock
                 </Text>
               </View>
             )}
 
-            <Text style={[styles.section, { color: colors.mutedForeground }]}>Quick actions</Text>
+            <SectionLabel label="Quick actions" />
             <View style={styles.actionsGrid}>
               {[
-                { label: "Orders", icon: "clipboard" as const, route: "/(admin)/orders", tint: colors.primary },
-                { label: "Trucks", icon: "truck" as const, route: "/(admin)/trucks", tint: colors.secondary },
-                { label: "Pricing", icon: "dollar-sign" as const, route: "/(admin)/pricing", tint: colors.info },
-                { label: "Analytics", icon: "bar-chart-2" as const, route: "/(admin)/analytics", tint: colors.success },
+                { label: "Orders", desc: "Manage flow", icon: "clipboard" as const, route: "/(admin)/orders", tint: colors.primary },
+                { label: "Trucks", desc: "Fleet & GPS", icon: "truck" as const, route: "/(admin)/trucks", tint: colors.secondary },
+                { label: "Pricing", desc: "Set ranges", icon: "dollar-sign" as const, route: "/(admin)/pricing", tint: colors.info },
+                { label: "Analytics", desc: "Demand mix", icon: "bar-chart-2" as const, route: "/(admin)/analytics", tint: colors.success },
               ].map((a) => (
                 <Pressable
                   key={a.label}
                   onPress={() => router.push(a.route as any)}
                   style={({ pressed }) => [
                     styles.actionTile,
-                    {
-                      backgroundColor: colors.card,
-                      borderColor: colors.border,
-                      opacity: pressed ? 0.7 : 1,
-                    },
+                    { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
                   ]}
                 >
                   <View style={[styles.actionIcon, { backgroundColor: a.tint + "1A" }]}>
                     <Feather name={a.icon} size={18} color={a.tint} />
                   </View>
-                  <Text style={[styles.actionLbl, { color: colors.foreground }]}>{a.label}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.actionLbl, { color: colors.foreground, fontFamily: PJS.bold }]}>{a.label}</Text>
+                    <Text style={[styles.actionDesc, { color: colors.mutedForeground, fontFamily: PJS.medium }]}>{a.desc}</Text>
+                  </View>
+                  <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
                 </Pressable>
               ))}
             </View>
 
-            <Text style={[styles.section, { color: colors.mutedForeground }]}>At a glance</Text>
-            <Card padded={false}>
-              {[
-                { icon: "package" as const, label: "Total products listed", value: stats?.totalProducts ?? 0 },
-                { icon: "truck" as const, label: "Active trucks", value: stats?.trucksActive ?? 0 },
-                { icon: "check-circle" as const, label: "Delivered today", value: stats?.deliveredToday ?? 0 },
-              ].map((row, i, arr) => (
-                <View key={row.label}>
-                  <View style={styles.summaryRow}>
-                    <View style={[styles.summaryIcon, { backgroundColor: colors.primary + "1A" }]}>
-                      <Feather name={row.icon} size={16} color={colors.primary} />
-                    </View>
-                    <Text style={[styles.summaryLbl, { color: colors.foreground }]}>{row.label}</Text>
-                    <Text style={[styles.summaryVal, { color: colors.primary }]}>{row.value}</Text>
-                  </View>
-                  {i < arr.length - 1 && <View style={[styles.divider, { backgroundColor: colors.border }]} />}
-                </View>
-              ))}
+            <SectionLabel label="At a glance" />
+            <Card>
+              <InfoRow icon="package" label="Products listed" value={String(stats?.totalProducts ?? 0)} tint={colors.primary} />
+              <InfoRow icon="truck" label="Trucks active" value={String(stats?.trucksActive ?? 0)} tint={colors.secondary} />
+              <InfoRow icon="check-circle" label="Delivered today" value={String(stats?.deliveredToday ?? 0)} tint={colors.success} />
+              <View style={{ flexDirection: "row", gap: 6, marginTop: 8 }}>
+                <Pill label="Live" color={colors.success} dot />
+                <Pill label="Auto-refresh" color={colors.info} icon="refresh-cw" />
+              </View>
             </Card>
           </>
         )}
@@ -113,16 +110,20 @@ export default function AdminDashboard() {
 const styles = StyleSheet.create({
   center: { padding: 60, alignItems: "center" },
   statsRow: { flexDirection: "row", gap: 10, marginBottom: 10 },
-  alert: { flexDirection: "row", alignItems: "center", gap: 10, padding: 14, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, marginTop: 8 },
-  alertTxt: { fontSize: 13, fontWeight: "700", flex: 1 },
-  section: { fontSize: 11, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.8, marginTop: 22, marginBottom: 10, marginLeft: 4 },
-  actionsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  actionTile: { flex: 1, minWidth: "47%", flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth },
-  actionIcon: { width: 38, height: 38, borderRadius: 10, alignItems: "center", justifyContent: "center" },
-  actionLbl: { fontSize: 14, fontWeight: "700" },
-  summaryRow: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14 },
-  summaryIcon: { width: 32, height: 32, borderRadius: 8, alignItems: "center", justifyContent: "center" },
-  summaryLbl: { flex: 1, fontSize: 14, fontWeight: "500" },
-  summaryVal: { fontSize: 17, fontWeight: "800", fontVariant: ["tabular-nums"] },
-  divider: { height: StyleSheet.hairlineWidth, marginLeft: 58 },
+  alert: { flexDirection: "row", alignItems: "center", gap: 10, padding: 14, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, marginTop: 10 },
+  alertTxt: { fontSize: 13, flex: 1 },
+  actionsGrid: { gap: 8 },
+  actionTile: {
+    flexDirection: "row", alignItems: "center", gap: 12,
+    padding: 14, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth,
+    ...Platform.select({
+      ios: { shadowColor: "#1a1410", shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } },
+      android: { elevation: 1 },
+      web: { boxShadow: "0 3px 10px rgba(26, 20, 16, 0.04)" } as any,
+      default: {},
+    }),
+  },
+  actionIcon: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  actionLbl: { fontSize: 14 },
+  actionDesc: { fontSize: 11, marginTop: 1 },
 });

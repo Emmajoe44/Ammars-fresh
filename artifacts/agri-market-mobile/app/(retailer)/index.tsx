@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import { useListCategories, useListProducts } from "@workspace/api-client-react";
 import React, { useState } from "react";
 import {
@@ -18,6 +19,7 @@ import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { ProductCard } from "@/components/ProductCard";
+import { Brand, PJS } from "@/components/ui";
 
 export default function RetailerHome() {
   const colors = useColors();
@@ -47,38 +49,44 @@ export default function RetailerHome() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.primary, paddingTop: topPad + 16 }]}>
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.greeting}>{greeting()},</Text>
-            <Text style={styles.userName}>{user?.name ?? "Retailer"}</Text>
-          </View>
-          <View style={[styles.cartBadge, { backgroundColor: "rgba(255,255,255,0.2)", borderRadius: colors.radius }]}>
+      <LinearGradient
+        colors={[colors.primary, colors.primary + "EE", colors.secondary + "DD"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.header, { paddingTop: topPad + 18 }]}
+      >
+        <View style={styles.brandRow}>
+          <Brand size="sm" inverted />
+          <View style={styles.cartBadge}>
             <Feather name="shopping-cart" size={20} color="#fff" />
             {count > 0 && (
               <View style={styles.badgeDot}>
-                <Text style={styles.badgeText}>{count}</Text>
+                <Text style={[styles.badgeText, { fontFamily: PJS.bold }]}>{count}</Text>
               </View>
             )}
           </View>
         </View>
 
-        <View style={[styles.searchBar, { backgroundColor: "rgba(255,255,255,0.95)", borderRadius: colors.radius }]}>
+        <Text style={[styles.greeting, { fontFamily: PJS.medium }]}>{greeting()},</Text>
+        <Text style={[styles.userName, { fontFamily: PJS.black }]}>{user?.name ?? "Retailer"}</Text>
+        <Text style={[styles.tagline, { fontFamily: PJS.medium }]}>Fresh produce, direct from South Sudan farmers</Text>
+
+        <View style={[styles.searchBar, { backgroundColor: "rgba(255,255,255,0.97)" }]}>
           <Feather name="search" size={18} color={colors.mutedForeground} />
           <TextInput
-            style={[styles.searchInput, { color: colors.foreground }]}
+            style={[styles.searchInput, { color: colors.foreground, fontFamily: PJS.medium }]}
             placeholder="Search produce..."
             placeholderTextColor={colors.mutedForeground}
             value={search}
             onChangeText={setSearch}
           />
           {search.length > 0 && (
-            <Pressable onPress={() => setSearch("")}>
+            <Pressable onPress={() => setSearch("")} hitSlop={8}>
               <Feather name="x" size={16} color={colors.mutedForeground} />
             </Pressable>
           )}
         </View>
-      </View>
+      </LinearGradient>
 
       <ScrollView
         horizontal
@@ -92,34 +100,37 @@ export default function RetailerHome() {
             styles.catChip,
             {
               backgroundColor: !selectedCategory ? colors.primary : colors.muted,
-              borderRadius: 20,
+              borderColor: !selectedCategory ? colors.primary : colors.border,
             },
           ]}
         >
-          <Text style={[styles.catText, { color: !selectedCategory ? "#fff" : colors.mutedForeground }]}>
+          <Text style={[styles.catText, { color: !selectedCategory ? "#fff" : colors.foreground, fontFamily: PJS.bold }]}>
             All
           </Text>
         </Pressable>
-        {(categories ?? []).map((cat) => (
-          <Pressable
-            key={cat.id}
-            onPress={() => {
-              Haptics.selectionAsync();
-              setSelectedCategory(cat.id === selectedCategory ? undefined : cat.id);
-            }}
-            style={[
-              styles.catChip,
-              {
-                backgroundColor: selectedCategory === cat.id ? colors.primary : colors.muted,
-                borderRadius: 20,
-              },
-            ]}
-          >
-            <Text style={[styles.catText, { color: selectedCategory === cat.id ? "#fff" : colors.mutedForeground }]}>
-              {cat.name}
-            </Text>
-          </Pressable>
-        ))}
+        {(categories ?? []).map((cat) => {
+          const active = selectedCategory === cat.id;
+          return (
+            <Pressable
+              key={cat.id}
+              onPress={() => {
+                Haptics.selectionAsync();
+                setSelectedCategory(active ? undefined : cat.id);
+              }}
+              style={[
+                styles.catChip,
+                {
+                  backgroundColor: active ? colors.primary : colors.muted,
+                  borderColor: active ? colors.primary : colors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.catText, { color: active ? "#fff" : colors.foreground, fontFamily: PJS.bold }]}>
+                {cat.name}
+              </Text>
+            </Pressable>
+          );
+        })}
       </ScrollView>
 
       {prodsLoading || catsLoading ? (
@@ -128,8 +139,13 @@ export default function RetailerHome() {
         </View>
       ) : products.length === 0 ? (
         <View style={styles.emptyWrap}>
-          <Feather name="inbox" size={48} color={colors.mutedForeground} />
-          <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>No produce found</Text>
+          <View style={[styles.emptyIcon, { backgroundColor: colors.muted }]}>
+            <Feather name="inbox" size={32} color={colors.mutedForeground} />
+          </View>
+          <Text style={[styles.emptyTitle, { color: colors.foreground, fontFamily: PJS.bold }]}>No produce found</Text>
+          <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: PJS.medium }]}>
+            Try a different category or search term
+          </Text>
         </View>
       ) : (
         <FlatList
@@ -167,21 +183,24 @@ export default function RetailerHome() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingHorizontal: 20, paddingBottom: 20 },
-  headerTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
-  greeting: { color: "rgba(255,255,255,0.8)", fontSize: 14 },
-  userName: { color: "#fff", fontSize: 22, fontWeight: "800" },
-  cartBadge: { padding: 10 },
-  badgeDot: { position: "absolute", top: -2, right: -2, backgroundColor: "#ef4444", borderRadius: 8, minWidth: 16, height: 16, alignItems: "center", justifyContent: "center" },
-  badgeText: { color: "#fff", fontSize: 10, fontWeight: "700" },
-  searchBar: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 14, height: 46 },
+  header: { paddingHorizontal: 20, paddingBottom: 22, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 },
+  brandRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 18 },
+  cartBadge: { padding: 10, backgroundColor: "rgba(255,255,255,0.18)", borderRadius: 14 },
+  badgeDot: { position: "absolute", top: -2, right: -2, backgroundColor: "#ef4444", borderRadius: 10, minWidth: 18, height: 18, paddingHorizontal: 4, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#fff" },
+  badgeText: { color: "#fff", fontSize: 10 },
+  greeting: { color: "rgba(255,255,255,0.85)", fontSize: 14 },
+  userName: { color: "#fff", fontSize: 24, marginTop: 2 },
+  tagline: { color: "rgba(255,255,255,0.85)", fontSize: 13, marginTop: 6, marginBottom: 16 },
+  searchBar: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 14, height: 48, borderRadius: 14 },
   searchInput: { flex: 1, fontSize: 15, height: "100%" },
   catScroll: { flexGrow: 0 },
   catContent: { paddingHorizontal: 16, paddingVertical: 14, gap: 8 },
-  catChip: { paddingHorizontal: 16, paddingVertical: 8 },
-  catText: { fontSize: 13, fontWeight: "600" },
+  catChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth },
+  catText: { fontSize: 13 },
   loadingWrap: { flex: 1, alignItems: "center", justifyContent: "center" },
-  emptyWrap: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12 },
-  emptyText: { fontSize: 16 },
+  emptyWrap: { flex: 1, alignItems: "center", justifyContent: "center", gap: 10, paddingHorizontal: 40 },
+  emptyIcon: { width: 64, height: 64, borderRadius: 20, alignItems: "center", justifyContent: "center", marginBottom: 4 },
+  emptyTitle: { fontSize: 16 },
+  emptyText: { fontSize: 13, textAlign: "center" },
   grid: { padding: 10, paddingBottom: 100 },
 });

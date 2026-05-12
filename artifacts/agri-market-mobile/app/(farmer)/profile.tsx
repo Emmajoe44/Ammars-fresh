@@ -1,18 +1,18 @@
-import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useColors } from "@/hooks/useColors";
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+
+import { Card } from "@/components/Card";
+import { Header } from "@/components/Header";
+import { InfoRow, Pill, PJS, PrimaryButton, SectionLabel } from "@/components/ui";
 import { useAuth } from "@/contexts/AuthContext";
+import { useColors } from "@/hooks/useColors";
 
 export default function FarmerProfile() {
   const colors = useColors();
-  const insets = useSafeAreaInsets();
   const { user, signOut, currency, setCurrency } = useAuth();
   const router = useRouter();
-  const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const handleSignOut = () => {
     const doSignOut = async () => {
@@ -24,7 +24,7 @@ export default function FarmerProfile() {
       if (typeof window !== "undefined" && window.confirm("Sign out of AgriMarket?")) doSignOut();
       return;
     }
-    Alert.alert("Sign out", "Are you sure?", [
+    Alert.alert("Sign out?", "You'll be returned to the login screen.", [
       { text: "Cancel", style: "cancel" },
       { text: "Sign out", style: "destructive", onPress: doSignOut },
     ]);
@@ -33,86 +33,83 @@ export default function FarmerProfile() {
   const initials = user?.name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) ?? "??";
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={{ paddingTop: topPad + 16, paddingBottom: 100 }}
-    >
-      <Text style={[styles.title, { color: colors.foreground, paddingHorizontal: 20 }]}>Profile</Text>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <Header title="Profile" subtitle="Account & farm info" eyebrow="Farmer" variant="gradient" />
 
-      <View style={[styles.avatarCard, { backgroundColor: colors.primary }]}>
-        <View style={[styles.avatar, { backgroundColor: "rgba(255,255,255,0.25)", borderRadius: 40 }]}>
-          <Text style={styles.avatarText}>{initials}</Text>
-        </View>
-        <Text style={styles.avatarName}>{user?.name}</Text>
-        {user?.farmName && <Text style={styles.farmName}>{user.farmName}</Text>}
-        <Text style={styles.avatarPhone}>{user?.phone}</Text>
-        <View style={[styles.rolePill, { backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 12 }]}>
-          <Text style={styles.roleText}>Farmer</Text>
-        </View>
-      </View>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
+        <Card>
+          <View style={styles.avatarRow}>
+            <View style={[styles.avatar, { backgroundColor: colors.secondary + "1A" }]}>
+              <Text style={[styles.avatarTxt, { color: colors.secondary, fontFamily: PJS.black }]}>{initials}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.name, { color: colors.foreground, fontFamily: PJS.bold }]}>{user?.name ?? "Farmer"}</Text>
+              {user?.farmName ? (
+                <Text style={[styles.farm, { color: colors.foreground, fontFamily: PJS.medium }]}>{user.farmName}</Text>
+              ) : null}
+              <Text style={[styles.phone, { color: colors.mutedForeground, fontFamily: PJS.medium }]}>{user?.phone ?? ""}</Text>
+              <View style={{ flexDirection: "row", marginTop: 6 }}>
+                <Pill label="Farmer" color={colors.secondary} icon="sun" />
+              </View>
+            </View>
+          </View>
+        </Card>
 
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>Preferences</Text>
-        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border, borderRadius: colors.radius }]}>
-          <Text style={[styles.cardLabel, { color: colors.foreground }]}>Currency</Text>
+        <SectionLabel label="Preferences" />
+        <Card>
+          <Text style={[styles.cardLabel, { color: colors.foreground, fontFamily: PJS.bold }]}>Currency</Text>
           <View style={styles.currencyRow}>
-            {(["SSP", "USD"] as const).map((c) => (
-              <TouchableOpacity
-                key={c}
-                onPress={() => { Haptics.selectionAsync(); setCurrency(c); }}
-                style={[styles.currencyBtn, { backgroundColor: currency === c ? colors.primary : colors.muted, borderRadius: colors.radius / 2 }]}
-              >
-                <Text style={[styles.currencyText, { color: currency === c ? "#fff" : colors.mutedForeground }]}>{c}</Text>
-              </TouchableOpacity>
-            ))}
+            {(["SSP", "USD"] as const).map((c) => {
+              const active = currency === c;
+              return (
+                <Pressable
+                  key={c}
+                  onPress={() => { Haptics.selectionAsync(); void setCurrency(c); }}
+                  style={({ pressed }) => [
+                    styles.currencyBtn,
+                    {
+                      backgroundColor: active ? colors.primary : colors.muted,
+                      borderColor: active ? colors.primary : colors.border,
+                      opacity: pressed ? 0.85 : 1,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.currencyText, { color: active ? "#fff" : colors.foreground, fontFamily: PJS.bold }]}>{c}</Text>
+                </Pressable>
+              );
+            })}
           </View>
-        </View>
-      </View>
+        </Card>
 
-      {user?.location && (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>Location</Text>
-          <View style={[styles.infoRow, { backgroundColor: colors.card, borderColor: colors.border, borderRadius: colors.radius }]}>
-            <Feather name="map-pin" size={18} color={colors.mutedForeground} />
-            <Text style={[styles.infoText, { color: colors.foreground }]}>{user.location}</Text>
-          </View>
-        </View>
-      )}
+        <SectionLabel label="Account" />
+        <Card>
+          <InfoRow icon="user" label="Full name" value={user?.name ?? "—"} tint={colors.primary} />
+          {user?.farmName ? (
+            <InfoRow icon="home" label="Farm" value={user.farmName} tint={colors.secondary} />
+          ) : null}
+          <InfoRow icon="phone" label="Phone" value={user?.phone ?? "—"} tint={colors.secondary} />
+          {user?.location ? (
+            <InfoRow icon="map-pin" label="Location" value={user.location} tint={colors.info} />
+          ) : null}
+        </Card>
 
-      <Pressable
-        style={({ pressed }) => [
-          styles.signOutBtn,
-          { backgroundColor: colors.destructive + "18", borderColor: colors.destructive + "40", borderRadius: colors.radius, opacity: pressed ? 0.8 : 1, marginHorizontal: 20, marginTop: 8 },
-        ]}
-        onPress={handleSignOut}
-      >
-        <Feather name="log-out" size={18} color={colors.destructive} />
-        <Text style={[styles.signOutText, { color: colors.destructive }]}>Sign Out</Text>
-      </Pressable>
-    </ScrollView>
+        <View style={{ marginTop: 16 }}>
+          <PrimaryButton label="Sign out" icon="log-out" variant="danger" trailingIcon={null} onPress={handleSignOut} />
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  title: { fontSize: 24, fontWeight: "800", marginBottom: 20 },
-  avatarCard: { margin: 20, borderRadius: 16, padding: 24, alignItems: "center", gap: 6 },
-  avatar: { width: 80, height: 80, alignItems: "center", justifyContent: "center", marginBottom: 8 },
-  avatarText: { color: "#fff", fontSize: 28, fontWeight: "800" },
-  avatarName: { color: "#fff", fontSize: 20, fontWeight: "700" },
-  farmName: { color: "rgba(255,255,255,0.9)", fontSize: 14, fontWeight: "600" },
-  avatarPhone: { color: "rgba(255,255,255,0.8)", fontSize: 13 },
-  rolePill: { paddingHorizontal: 14, paddingVertical: 5, marginTop: 4 },
-  roleText: { color: "#fff", fontSize: 12, fontWeight: "600", textTransform: "uppercase" },
-  section: { marginBottom: 8 },
-  sectionTitle: { fontSize: 12, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.8, paddingHorizontal: 20, marginBottom: 8 },
-  card: { marginHorizontal: 20, padding: 16, borderWidth: 1, marginBottom: 12 },
-  cardLabel: { fontSize: 15, fontWeight: "600", marginBottom: 12 },
+  avatarRow: { flexDirection: "row", alignItems: "center", gap: 14 },
+  avatar: { width: 60, height: 60, borderRadius: 18, alignItems: "center", justifyContent: "center" },
+  avatarTxt: { fontSize: 22 },
+  name: { fontSize: 18 },
+  farm: { fontSize: 13, marginTop: 2 },
+  phone: { fontSize: 13, marginTop: 2 },
+  cardLabel: { fontSize: 15, marginBottom: 12 },
   currencyRow: { flexDirection: "row", gap: 10 },
-  currencyBtn: { paddingHorizontal: 24, paddingVertical: 10 },
-  currencyText: { fontSize: 14, fontWeight: "700" },
-  infoRow: { flexDirection: "row", alignItems: "center", gap: 12, padding: 16, borderWidth: 1, marginHorizontal: 20, marginBottom: 12 },
-  infoText: { fontSize: 14 },
-  signOutBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, padding: 16, borderWidth: 1 },
-  signOutText: { fontSize: 15, fontWeight: "700" },
+  currencyBtn: { flex: 1, paddingVertical: 12, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, alignItems: "center" },
+  currencyText: { fontSize: 14 },
 });

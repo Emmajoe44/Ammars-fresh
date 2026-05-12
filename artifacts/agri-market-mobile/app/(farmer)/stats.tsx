@@ -1,123 +1,97 @@
 import { Feather } from "@expo/vector-icons";
 import { useGetFarmerStats } from "@workspace/api-client-react";
 import React from "react";
-import { ActivityIndicator, FlatList, Platform, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+
+import { Card } from "@/components/Card";
+import { Header } from "@/components/Header";
+import { StatCard } from "@/components/StatCard";
+import { InfoRow, Pill, PJS, SectionLabel } from "@/components/ui";
 import { useColors } from "@/hooks/useColors";
 import { useFormatRevenue } from "@/hooks/useFormatRevenue";
-import { StatCard } from "@/components/StatCard";
 
 export default function FarmerStats() {
   const colors = useColors();
-  const insets = useSafeAreaInsets();
-  const topPad = Platform.OS === "web" ? 67 : insets.top;
+  const formatRevenue = useFormatRevenue();
 
   const { data: stats, isLoading, refetch, isRefetching } = useGetFarmerStats();
 
-  const formatRevenue = useFormatRevenue();
+  const top = stats?.topProducts ?? [];
+  const maxQty = top.reduce((m, p) => Math.max(m, p.totalQuantity), 0) || 1;
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />
-      }
-    >
-      <View style={{ paddingTop: topPad + 16 }}>
-        <Text style={[styles.title, { color: colors.foreground }]}>Sales Dashboard</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>Your farming performance</Text>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <Header title="Sales" subtitle="Performance & demand" eyebrow="Your harvest" variant="gradient" />
 
+      <ScrollView
+        contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />}
+      >
         {isLoading ? (
-          <View style={styles.loading}>
+          <View style={styles.center}>
             <ActivityIndicator size="large" color={colors.primary} />
           </View>
         ) : (
           <>
-            <View style={styles.statsGrid}>
-              <StatCard
-                label="Total Products"
-                value={stats?.totalProducts ?? 0}
-                icon="package"
-                tone="info"
-              />
-              <StatCard
-                label="Active Listings"
-                value={stats?.activeProducts ?? 0}
-                icon="check-circle"
-                tone="success"
-              />
-              <StatCard
-                label="Orders This Month"
-                value={stats?.ordersThisMonth ?? 0}
-                icon="shopping-bag"
-                tone="secondary"
-              />
-              <StatCard
-                label="Total Revenue"
-                value={formatRevenue(stats?.totalSalesSSP ?? 0, stats?.totalSalesUSD ?? 0)}
-                icon="trending-up"
-                tone="primary"
-              />
+            <View style={styles.row}>
+              <StatCard label="Revenue" value={stats ? formatRevenue(stats.totalSalesSSP, stats.totalSalesUSD) : "—"} icon="trending-up" tone="primary" variant="gradient" hint="All time" />
+              <StatCard label="Orders" value={stats?.ordersThisMonth ?? 0} icon="shopping-bag" tone="secondary" variant="gradient" hint="This month" />
+            </View>
+            <View style={styles.row}>
+              <StatCard label="Active products" value={stats?.activeProducts ?? 0} icon="package" tone="info" hint="Listed" />
+              <StatCard label="Total products" value={stats?.totalProducts ?? 0} icon="grid" tone="success" hint="Catalog" />
             </View>
 
-            {(stats?.topProducts ?? []).length > 0 && (
-              <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>Top Products</Text>
-                {(stats?.topProducts ?? []).map((p: any, idx: number) => (
-                  <View
-                    key={p.productId}
-                    style={[
-                      styles.topItem,
-                      { backgroundColor: colors.card, borderColor: colors.border, borderRadius: colors.radius },
-                    ]}
-                  >
-                    <View style={[styles.rank, { backgroundColor: colors.primary + "18", borderRadius: 20 }]}>
-                      <Text style={[styles.rankText, { color: colors.primary }]}>#{idx + 1}</Text>
+            <SectionLabel label="Top sellers" />
+            <Card>
+              {top.length === 0 ? (
+                <View style={styles.empty}>
+                  <Feather name="bar-chart-2" size={28} color={colors.mutedForeground} />
+                  <Text style={[styles.emptyTxt, { color: colors.mutedForeground, fontFamily: PJS.medium }]}>
+                    No sales data yet
+                  </Text>
+                </View>
+              ) : (
+                top.map((p, i) => {
+                  const pct = (p.totalQuantity / maxQty) * 100;
+                  return (
+                    <View key={p.productId} style={{ marginBottom: i === top.length - 1 ? 0 : 14 }}>
+                      <View style={styles.topRow}>
+                        <Text style={[styles.topName, { color: colors.foreground, fontFamily: PJS.bold }]} numberOfLines={1}>
+                          {p.productName}
+                        </Text>
+                        <Pill label={`${p.totalQuantity} sold`} color={colors.primary} icon="package" />
+                      </View>
+                      <View style={[styles.barTrack, { backgroundColor: colors.muted }]}>
+                        <View style={[styles.barFill, { width: `${pct}%`, backgroundColor: colors.primary }]} />
+                      </View>
                     </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.topName, { color: colors.foreground }]}>{p.productName}</Text>
-                      <Text style={[styles.topSales, { color: colors.mutedForeground }]}>
-                        {p.totalQuantity} units sold
-                      </Text>
-                    </View>
-                    <Text style={[styles.topRevenue, { color: colors.primary }]}>
-                      {formatRevenue(p.totalSSP, p.totalUSD)}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            )}
+                  );
+                })
+              )}
+            </Card>
 
-            {(stats?.topProducts ?? []).length === 0 && (
-              <View style={styles.noSales}>
-                <Feather name="bar-chart-2" size={48} color={colors.mutedForeground} />
-                <Text style={[styles.noSalesText, { color: colors.mutedForeground }]}>
-                  No sales data yet
-                </Text>
-              </View>
-            )}
+            <SectionLabel label="At a glance" />
+            <Card>
+              <InfoRow icon="package" label="Total products" value={String(stats?.totalProducts ?? 0)} tint={colors.primary} />
+              <InfoRow icon="check-circle" label="Active listings" value={String(stats?.activeProducts ?? 0)} tint={colors.success} />
+              <InfoRow icon="shopping-bag" label="Orders this month" value={String(stats?.ordersThisMonth ?? 0)} tint={colors.info} />
+            </Card>
           </>
         )}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  title: { fontSize: 24, fontWeight: "800", paddingHorizontal: 20, marginBottom: 4 },
-  subtitle: { fontSize: 13, paddingHorizontal: 20, marginBottom: 20 },
-  loading: { padding: 60, alignItems: "center" },
-  statsGrid: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 14, marginBottom: 8 },
-  section: { marginTop: 16, paddingHorizontal: 20 },
-  sectionTitle: { fontSize: 12, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 12 },
-  topItem: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderWidth: 1, marginBottom: 10 },
-  rank: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
-  rankText: { fontSize: 13, fontWeight: "800" },
-  topName: { fontSize: 15, fontWeight: "600", marginBottom: 2 },
-  topSales: { fontSize: 12 },
-  topRevenue: { fontSize: 15, fontWeight: "700" },
-  noSales: { alignItems: "center", justifyContent: "center", gap: 12, padding: 60 },
-  noSalesText: { fontSize: 15 },
+  center: { padding: 60, alignItems: "center" },
+  row: { flexDirection: "row", gap: 10, marginBottom: 10 },
+  empty: { alignItems: "center", paddingVertical: 24, gap: 8 },
+  emptyTxt: { fontSize: 13 },
+  topRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 6, gap: 10 },
+  topName: { fontSize: 14, flex: 1 },
+  barTrack: { height: 8, borderRadius: 999, overflow: "hidden" },
+  barFill: { height: "100%", borderRadius: 999 },
 });

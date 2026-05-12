@@ -1,7 +1,10 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+
+import { PJS } from "@/components/ui/typography";
 import { useColors } from "@/hooks/useColors";
 
 interface ProductCardProps {
@@ -21,27 +24,17 @@ interface ProductCardProps {
 }
 
 export function ProductCard({
-  name,
-  farmerName,
-  farmName,
-  priceSSP,
-  priceUSD,
-  quantity,
-  unit,
-  qualityGrade,
-  available,
-  currency = "SSP",
-  onAddToCart,
-  onPress,
+  name, farmerName, farmName, priceSSP, priceUSD, quantity, unit,
+  qualityGrade, available, currency = "SSP", onAddToCart, onPress,
 }: ProductCardProps) {
   const colors = useColors();
 
   const gradeColor =
     qualityGrade === "A" ? colors.primary : qualityGrade === "B" ? colors.secondary : colors.mutedForeground;
-  const price = currency === "USD" ? `$${priceUSD.toFixed(2)}` : `SSP ${priceSSP.toLocaleString()}`;
+  const price = currency === "USD" ? `$${Number(priceUSD).toFixed(2)}` : `SSP ${Number(priceSSP).toLocaleString()}`;
 
   const handleAddToCart = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (Platform.OS !== "web") Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onAddToCart?.();
   };
 
@@ -53,46 +46,66 @@ export function ProductCard({
         {
           backgroundColor: colors.card,
           borderColor: colors.border,
-          borderRadius: colors.radius,
-          opacity: pressed ? 0.85 : 1,
+          opacity: pressed ? 0.92 : 1,
+          transform: [{ scale: pressed ? 0.985 : 1 }],
         },
       ]}
     >
-      <View
-        style={[styles.gradeTag, { backgroundColor: gradeColor + "20", borderRadius: colors.radius / 2 }]}
+      <LinearGradient
+        colors={[gradeColor + "26", gradeColor + "10"]}
+        style={styles.imageBg}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
       >
-        <Text style={[styles.gradeText, { color: gradeColor }]}>Grade {qualityGrade}</Text>
-      </View>
-
-      <Text style={[styles.name, { color: colors.foreground }]} numberOfLines={2}>
-        {name}
-      </Text>
-
-      <Text style={[styles.farmer, { color: colors.mutedForeground }]} numberOfLines={1}>
-        {farmName ?? farmerName ?? "Unknown Farm"}
-      </Text>
-
-      <View style={styles.footer}>
-        <View>
-          <Text style={[styles.price, { color: colors.primary }]}>{price}</Text>
-          <Text style={[styles.unit, { color: colors.mutedForeground }]}>
-            per {unit} · {quantity} available
-          </Text>
-        </View>
-
-        {onAddToCart && available && (
-          <Pressable
-            onPress={handleAddToCart}
-            style={[styles.addBtn, { backgroundColor: colors.primary, borderRadius: colors.radius / 2 }]}
-          >
-            <Feather name="plus" size={18} color="#fff" />
-          </Pressable>
+        <Feather name="package" size={36} color={gradeColor} />
+        {qualityGrade && (
+          <View style={[styles.gradeTag, { backgroundColor: "#fff" }]}>
+            <Text style={[styles.gradeText, { color: gradeColor, fontFamily: PJS.black }]}>
+              {qualityGrade}
+            </Text>
+          </View>
         )}
+      </LinearGradient>
+
+      <View style={styles.body}>
+        <Text style={[styles.name, { color: colors.foreground, fontFamily: PJS.bold }]} numberOfLines={2}>
+          {name}
+        </Text>
+        <Text style={[styles.farmer, { color: colors.mutedForeground, fontFamily: PJS.medium }]} numberOfLines={1}>
+          {farmName ?? farmerName ?? "Unknown farm"}
+        </Text>
+
+        <View style={styles.footer}>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={[styles.price, { color: colors.foreground, fontFamily: PJS.black }]} numberOfLines={1}>
+              {price}
+            </Text>
+            <Text style={[styles.unit, { color: colors.mutedForeground, fontFamily: PJS.medium }]} numberOfLines={1}>
+              per {unit} · {quantity} left
+            </Text>
+          </View>
+
+          {onAddToCart && available && (
+            <Pressable
+              onPress={handleAddToCart}
+              style={({ pressed }) => [
+                styles.addBtn,
+                { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
+              ]}
+            >
+              <Feather name="plus" size={18} color="#fff" />
+            </Pressable>
+          )}
+        </View>
       </View>
 
       {!available && (
-        <View style={[styles.unavailableOverlay, { borderRadius: colors.radius }]}>
-          <Text style={[styles.unavailableText, { color: colors.mutedForeground }]}>Out of Stock</Text>
+        <View style={styles.unavailableOverlay}>
+          <View style={[styles.unavailableBadge, { backgroundColor: colors.foreground }]}>
+            <Text style={[styles.unavailableText, { color: colors.background, fontFamily: PJS.bold }]}>
+              Out of stock
+            </Text>
+          </View>
         </View>
       )}
     </Pressable>
@@ -103,57 +116,61 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     margin: 6,
-    padding: 14,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 18,
     overflow: "hidden",
+    ...Platform.select({
+      ios: { shadowColor: "#1a1410", shadowOpacity: 0.05, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } },
+      android: { elevation: 1 },
+      web: { boxShadow: "0 4px 14px rgba(26, 20, 16, 0.05)" } as any,
+      default: {},
+    }),
   },
-  gradeTag: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    marginBottom: 8,
-  },
-  gradeText: {
-    fontSize: 11,
-    fontWeight: "600",
-  },
-  name: {
-    fontSize: 15,
-    fontWeight: "700",
-    marginBottom: 4,
-    lineHeight: 20,
-  },
-  farmer: {
-    fontSize: 12,
-    marginBottom: 12,
-  },
-  footer: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-  },
-  price: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  unit: {
-    fontSize: 11,
-    marginTop: 2,
-  },
-  addBtn: {
-    width: 34,
-    height: 34,
+  imageBg: {
+    height: 96,
     alignItems: "center",
     justifyContent: "center",
+    position: "relative",
+  },
+  gradeTag: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
+    ...Platform.select({
+      ios: { shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
+      android: { elevation: 2 },
+      web: { boxShadow: "0 2px 6px rgba(0,0,0,0.12)" } as any,
+      default: {},
+    }),
+  },
+  gradeText: { fontSize: 12, letterSpacing: 0 },
+  body: { padding: 12 },
+  name: { fontSize: 14, lineHeight: 18, marginBottom: 2 },
+  farmer: { fontSize: 11, marginBottom: 10 },
+  footer: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", gap: 8 },
+  price: { fontSize: 14, letterSpacing: -0.2 },
+  unit: { fontSize: 10, marginTop: 2 },
+  addBtn: {
+    width: 32, height: 32, borderRadius: 10,
+    alignItems: "center", justifyContent: "center",
+    ...Platform.select({
+      ios: { shadowColor: "#1f5a2e", shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
+      android: { elevation: 3 },
+      web: { boxShadow: "0 4px 10px rgba(31, 90, 46, 0.3)" } as any,
+      default: {},
+    }),
   },
   unavailableOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255,255,255,0.75)",
+    backgroundColor: "rgba(255,255,255,0.55)",
     alignItems: "center",
     justifyContent: "center",
   },
-  unavailableText: {
-    fontWeight: "600",
-    fontSize: 13,
-  },
+  unavailableBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
+  unavailableText: { fontSize: 11, letterSpacing: 0.4, textTransform: "uppercase" },
 });
