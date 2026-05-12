@@ -7,7 +7,7 @@ import { AppLayout } from "@/components/Layout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingBasket, Leaf, SlidersHorizontal, X } from "lucide-react";
+import { Search, ShoppingBasket, Leaf, SlidersHorizontal, X, LayoutGrid, List } from "lucide-react";
 import { resolveImageSrc } from "@/lib/image-url";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +19,14 @@ export default function RetailerProducts() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>();
   const [currency, setCurrency] = useState<"SSP" | "USD">("SSP");
+  const [view, setView] = useState<"grid" | "list">(() => {
+    if (typeof window === "undefined") return "grid";
+    return (localStorage.getItem("agrimarket_products_view") as "grid" | "list") || "grid";
+  });
+  const setViewPersist = (v: "grid" | "list") => {
+    setView(v);
+    if (typeof window !== "undefined") localStorage.setItem("agrimarket_products_view", v);
+  };
 
   const params = {
     search: search || undefined,
@@ -62,20 +70,42 @@ export default function RetailerProducts() {
             />
           </div>
 
-          {/* Currency toggle */}
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm text-muted-foreground">{t("Price in:", "السعر بـ:")}</span>
-            <div className="flex rounded-lg border border-border overflow-hidden">
-              {(["SSP", "USD"] as const).map(c => (
-                <button
-                  key={c}
-                  onClick={() => setCurrency(c)}
-                  className={`px-3 py-1.5 text-xs font-semibold transition-colors ${currency === c ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted"}`}
-                  data-testid={`button-currency-${c.toLowerCase()}`}
-                >
-                  {c}
-                </button>
-              ))}
+          {/* Currency + View toggle */}
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">{t("Price in:", "السعر بـ:")}</span>
+              <div className="flex rounded-lg border border-border overflow-hidden">
+                {(["SSP", "USD"] as const).map(c => (
+                  <button
+                    key={c}
+                    onClick={() => setCurrency(c)}
+                    className={`px-3 py-1.5 text-xs font-semibold transition-colors ${currency === c ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted"}`}
+                    data-testid={`button-currency-${c.toLowerCase()}`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex rounded-lg border border-border overflow-hidden" role="group" aria-label={t("View mode", "وضع العرض")}>
+              <button
+                onClick={() => setViewPersist("grid")}
+                className={`px-2.5 py-1.5 transition-colors ${view === "grid" ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted"}`}
+                aria-label={t("Grid view", "عرض الشبكة")}
+                title={t("Grid view", "عرض الشبكة")}
+                data-testid="button-view-grid"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewPersist("list")}
+                className={`px-2.5 py-1.5 transition-colors ${view === "list" ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted"}`}
+                aria-label={t("List view", "عرض القائمة")}
+                title={t("List view", "عرض القائمة")}
+                data-testid="button-view-list"
+              >
+                <List className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
@@ -102,8 +132,8 @@ export default function RetailerProducts() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-3">
-            {[...Array(6)].map((_, i) => <div key={i} className="h-48 bg-muted rounded-2xl animate-pulse" />)}
+          <div className={view === "grid" ? "grid grid-cols-2 gap-3" : "flex flex-col gap-3"}>
+            {[...Array(6)].map((_, i) => <div key={i} className={view === "grid" ? "h-48 bg-muted rounded-2xl animate-pulse" : "h-24 bg-muted rounded-2xl animate-pulse"} />)}
           </div>
         ) : data?.products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -111,7 +141,7 @@ export default function RetailerProducts() {
             <p className="font-semibold text-foreground">{t("No products found", "لا توجد منتجات")}</p>
             <p className="text-sm text-muted-foreground">{t("Try a different search", "جرب بحثاً مختلفاً")}</p>
           </div>
-        ) : (
+        ) : view === "grid" ? (
           <div className="grid grid-cols-2 gap-3">
             <AnimatePresence>
               {(data?.products ?? []).map((product, i) => (
@@ -144,6 +174,45 @@ export default function RetailerProducts() {
                     <ShoppingBasket className="w-3.5 h-3.5 mr-1.5" />
                     {t("Add", "أضف")}
                   </Button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <AnimatePresence>
+              {(data?.products ?? []).map((product, i) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.03 }}
+                  className="bg-card border border-border rounded-2xl p-3 flex items-center gap-3"
+                  data-testid={`card-product-${product.id}`}
+                >
+                  <div className="w-20 h-20 rounded-xl bg-primary/8 flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {resolveImageSrc(product.imageUrl) ? (
+                      <img src={resolveImageSrc(product.imageUrl)!} alt={product.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Leaf className="w-7 h-7 text-primary/25" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-sm text-foreground leading-tight truncate">{lang === "ar" ? product.nameAr : product.name}</p>
+                      <Badge variant="outline" className="text-[10px] flex-shrink-0">{product.qualityGrade}</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">{product.farmName ?? product.farmerName}</p>
+                    <p className="text-xs text-muted-foreground">{product.quantity} {product.unit} {t("available", "متاح")}</p>
+                    <div className="flex items-center justify-between mt-1.5 gap-2">
+                      <p className="text-primary font-bold text-sm">
+                        {currency === "SSP" ? `SSP ${product.priceSSP?.toLocaleString()}` : `$${product.priceUSD?.toFixed(2)}`}/{product.unit}
+                      </p>
+                      <Button size="sm" onClick={() => handleAddToCart(product)} data-testid={`button-add-cart-${product.id}`}>
+                        <ShoppingBasket className="w-3.5 h-3.5 mr-1.5" />
+                        {t("Add", "أضف")}
+                      </Button>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </AnimatePresence>
