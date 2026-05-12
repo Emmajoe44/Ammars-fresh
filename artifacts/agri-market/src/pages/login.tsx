@@ -28,7 +28,8 @@ export default function LoginPage() {
   });
 
   const onSubmit = (values: z.infer<typeof schema>) => {
-    loginMutation.mutate({ data: values }, {
+    const data = { ...values, phone: values.phone.replace(/\s+/g, "") };
+    loginMutation.mutate({ data }, {
       onSuccess: (data) => {
         login(data.token, data.user as Parameters<typeof login>[1]);
         const role = data.user.role;

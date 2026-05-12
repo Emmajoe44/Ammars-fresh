@@ -35,7 +35,7 @@ export default function LoginScreen() {
       return;
     }
     try {
-      const response = await loginMutation.mutateAsync({ data: { phone: phone.trim(), password } });
+      const response = await loginMutation.mutateAsync({ data: { phone: phone.replace(/\s+/g, ""), password } });
       await signIn(response.token, response.user as any);
       const role = response.user.role;
       if (role === "farmer") router.replace("/(farmer)");

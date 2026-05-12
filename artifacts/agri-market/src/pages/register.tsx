@@ -35,7 +35,8 @@ export default function RegisterPage() {
   const role = form.watch("role");
 
   const onSubmit = (values: z.infer<typeof schema>) => {
-    registerMutation.mutate({ data: values }, {
+    const data = { ...values, phone: values.phone.replace(/\s+/g, "") };
+    registerMutation.mutate({ data }, {
       onSuccess: (data) => {
         login(data.token, data.user as Parameters<typeof login>[1]);
         if (data.user.role === "retailer") setLocation("/retailer");

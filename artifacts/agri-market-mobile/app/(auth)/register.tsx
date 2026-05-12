@@ -46,7 +46,7 @@ export default function RegisterScreen() {
       const response = await registerMutation.mutateAsync({
         data: {
           name: name.trim(),
-          phone: phone.trim(),
+          phone: phone.replace(/\s+/g, ""),
           password,
           role,
           location: location.trim() || null,
