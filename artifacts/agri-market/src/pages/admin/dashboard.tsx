@@ -149,7 +149,7 @@ export default function AdminDashboard() {
     { label: t("Delivered today", "تم التسليم اليوم"), value: stats?.deliveredToday ?? 0, icon: CheckCircle, color: "text-green-600", bg: "bg-green-100", href: "/admin/orders" },
     { label: t("Farmers", "المزارعون"), value: stats?.totalFarmers ?? 0, icon: Leaf, color: "text-emerald-600", bg: "bg-emerald-100", href: "/admin/farmers" },
     { label: t("Retailers", "التجار"), value: stats?.totalRetailers ?? 0, icon: Users, color: "text-blue-600", bg: "bg-blue-100", href: "/admin/retailers" },
-    { label: t("Products", "المنتجات"), value: stats?.totalProducts ?? 0, icon: Package, color: "text-indigo-600", bg: "bg-indigo-100", href: "/admin/pricing" },
+    { label: t("Products", "المنتجات"), value: stats?.totalProducts ?? 0, icon: Package, color: "text-indigo-600", bg: "bg-indigo-100", href: "/admin/products" },
     { label: t("Trucks available", "شاحنات متاحة"), value: trucksAvailable, icon: Truck, color: "text-purple-600", bg: "bg-purple-100", href: "/admin/trucks" },
   ];
 

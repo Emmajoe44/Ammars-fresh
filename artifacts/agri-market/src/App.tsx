@@ -36,6 +36,7 @@ import AdminFarmers from "@/pages/admin/farmers";
 import AdminRetailers from "@/pages/admin/retailers";
 import AdminPricing from "@/pages/admin/pricing";
 import AdminAnalytics from "@/pages/admin/analytics";
+import AdminProducts from "@/pages/admin/products";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -83,6 +84,7 @@ function AppRoutes() {
       <Route path="/admin/trucks/new">{() => <ProtectedRoute component={AdminAddTruck} roles={["admin"]} />}</Route>
       <Route path="/admin/farmers">{() => <ProtectedRoute component={AdminFarmers} roles={["admin"]} />}</Route>
       <Route path="/admin/retailers">{() => <ProtectedRoute component={AdminRetailers} roles={["admin"]} />}</Route>
+      <Route path="/admin/products">{() => <ProtectedRoute component={AdminProducts} roles={["admin"]} />}</Route>
       <Route path="/admin/pricing">{() => <ProtectedRoute component={AdminPricing} roles={["admin"]} />}</Route>
       <Route path="/admin/analytics">{() => <ProtectedRoute component={AdminAnalytics} roles={["admin"]} />}</Route>
 

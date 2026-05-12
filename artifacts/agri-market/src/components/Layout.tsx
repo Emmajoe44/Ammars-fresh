@@ -30,6 +30,7 @@ const farmerNav: NavItem[] = [
 const adminNav: NavItem[] = [
   { label: "Dashboard", labelAr: "لوحة التحكم", icon: LayoutDashboard, href: "/admin" },
   { label: "Orders", labelAr: "الطلبات", icon: ClipboardList, href: "/admin/orders" },
+  { label: "Products", labelAr: "المنتجات", icon: Package, href: "/admin/products" },
   { label: "Trucks", labelAr: "الشاحنات", icon: Truck, href: "/admin/trucks" },
   { label: "Analytics", labelAr: "التحليلات", icon: BarChart3, href: "/admin/analytics" },
   { label: "Pricing", labelAr: "التسعير", icon: Tag, href: "/admin/pricing" },
