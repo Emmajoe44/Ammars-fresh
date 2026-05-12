@@ -28,6 +28,9 @@ import {
   ChevronDown,
   Sparkles,
   TrendingUp,
+  LayoutGrid,
+  List as ListIcon,
+  Table as TableIcon,
 } from "lucide-react";
 
 const GRADE_STYLES: Record<string, string> = {
@@ -45,6 +48,15 @@ export default function AdminProducts() {
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<number | undefined>(undefined);
   const [availability, setAvailability] = useState<"all" | "available" | "soldout">("all");
+  const [view, setView] = useState<"table" | "grid" | "list">(() => {
+    if (typeof window === "undefined") return "table";
+    const v = localStorage.getItem("agrimarket_admin_products_view");
+    return (v === "grid" || v === "list" || v === "table") ? v : "table";
+  });
+  const setViewPersist = (v: "table" | "grid" | "list") => {
+    setView(v);
+    if (typeof window !== "undefined") localStorage.setItem("agrimarket_admin_products_view", v);
+  };
 
   const params = useMemo(
     () => ({
@@ -206,6 +218,36 @@ export default function AdminProducts() {
                 </button>
               ))}
             </div>
+
+            <div className="inline-flex rounded-xl border border-border bg-background p-1" role="group" aria-label={t("View mode", "وضع العرض")}>
+              <button
+                onClick={() => setViewPersist("table")}
+                className={`px-2.5 py-1.5 rounded-lg transition-colors ${view === "table" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                aria-label={t("Table view", "عرض الجدول")}
+                title={t("Table view", "عرض الجدول")}
+                data-testid="button-view-table"
+              >
+                <TableIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewPersist("grid")}
+                className={`px-2.5 py-1.5 rounded-lg transition-colors ${view === "grid" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                aria-label={t("Grid view", "عرض الشبكة")}
+                title={t("Grid view", "عرض الشبكة")}
+                data-testid="button-view-grid"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewPersist("list")}
+                className={`px-2.5 py-1.5 rounded-lg transition-colors ${view === "list" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                aria-label={t("List view", "عرض القائمة")}
+                title={t("List view", "عرض القائمة")}
+                data-testid="button-view-list"
+              >
+                <ListIcon className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -232,6 +274,103 @@ export default function AdminProducts() {
               <p className="text-sm text-muted-foreground mt-1">
                 {t("Try clearing filters or search.", "جرب مسح الفلاتر أو البحث.")}
               </p>
+            </div>
+          ) : view === "grid" ? (
+            <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {products.map((p, i) => {
+                const isLow = p.quantity > 0 && p.quantity < 20;
+                const isOut = p.quantity <= 0;
+                return (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.02 }}
+                    className="border border-border rounded-2xl p-3 flex flex-col gap-2 bg-background hover:shadow-md transition-shadow"
+                    data-testid={`product-grid-${p.id}`}
+                  >
+                    <div className="w-full h-28 rounded-xl bg-primary/8 flex items-center justify-center overflow-hidden">
+                      {resolveImageSrc(p.imageUrl) ? (
+                        <img src={resolveImageSrc(p.imageUrl)!} alt={p.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Leaf className="w-9 h-9 text-primary/30" />
+                      )}
+                    </div>
+                    <div className="flex items-start justify-between gap-1">
+                      <p className="font-semibold text-sm text-foreground truncate leading-tight">{lang === "ar" ? p.nameAr : p.name}</p>
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold flex-shrink-0 ${GRADE_STYLES[p.qualityGrade ?? ""] ?? "bg-muted"}`}>{p.qualityGrade}</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground truncate">{p.farmerName ?? "—"} · {p.categoryName ?? "—"}</p>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-xs font-bold ${isOut ? "text-red-600" : isLow ? "text-amber-600" : "text-foreground"}`}>{p.quantity} {p.unit}</span>
+                      <span className="text-xs font-bold text-foreground">SSP {p.priceSSP.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between pt-1.5 border-t border-border">
+                      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${p.available ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+                        <span className={`w-1 h-1 rounded-full ${p.available ? "bg-green-500" : "bg-red-500"}`} />
+                        {p.available ? t("Active", "نشط") : t("Sold out", "نفد")}
+                      </span>
+                      <div className="flex items-center gap-0.5">
+                        <button onClick={() => handleToggle(p.id)} className="p-1.5 rounded-lg hover:bg-muted" data-testid={`button-toggle-grid-${p.id}`} title={p.available ? t("Mark sold out", "تحديد كنافد") : t("Mark available", "تحديد كمتاح")}>
+                          {p.available ? <ToggleRight className="w-4 h-4 text-green-600" /> : <ToggleLeft className="w-4 h-4 text-muted-foreground" />}
+                        </button>
+                        <button onClick={() => handleDelete(p.id, p.name)} className="p-1.5 rounded-lg hover:bg-destructive/10" data-testid={`button-delete-grid-${p.id}`} title={t("Delete", "حذف")}>
+                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          ) : view === "list" ? (
+            <div className="divide-y divide-border">
+              {products.map((p, i) => {
+                const isLow = p.quantity > 0 && p.quantity < 20;
+                const isOut = p.quantity <= 0;
+                return (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.02 }}
+                    className="p-4 flex gap-3 items-center hover:bg-muted/30 transition-colors"
+                    data-testid={`product-list-${p.id}`}
+                  >
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                      {resolveImageSrc(p.imageUrl) ? (
+                        <img src={resolveImageSrc(p.imageUrl)!} alt={p.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Leaf className="w-6 h-6 text-primary/50" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-semibold text-sm text-foreground truncate">{lang === "ar" ? p.nameAr : p.name}</p>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${p.available ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+                          <span className={`w-1 h-1 rounded-full ${p.available ? "bg-green-500" : "bg-red-500"}`} />
+                          {p.available ? t("Active", "نشط") : t("Sold out", "نفد")}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{p.farmerName ?? "—"} · {p.categoryName ?? "—"}</p>
+                      <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                        <span className={`text-xs font-bold ${isOut ? "text-red-600" : isLow ? "text-amber-600" : "text-foreground"}`}>{p.quantity} {p.unit}</span>
+                        <span className="text-xs font-bold text-foreground">SSP {p.priceSSP.toLocaleString()}</span>
+                        <span className="text-[11px] text-muted-foreground">${p.priceUSD.toFixed(2)}</span>
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${GRADE_STYLES[p.qualityGrade ?? ""] ?? "bg-muted"}`}>{p.qualityGrade}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button onClick={() => handleToggle(p.id)} className="p-2 rounded-lg hover:bg-muted" data-testid={`button-toggle-list-${p.id}`} title={p.available ? t("Mark sold out", "تحديد كنافد") : t("Mark available", "تحديد كمتاح")}>
+                        {p.available ? <ToggleRight className="w-5 h-5 text-green-600" /> : <ToggleLeft className="w-5 h-5 text-muted-foreground" />}
+                      </button>
+                      <button onClick={() => handleDelete(p.id, p.name)} className="p-2 rounded-lg hover:bg-destructive/10" data-testid={`button-delete-list-${p.id}`} title={t("Delete", "حذف")}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </button>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           ) : (
             <>
@@ -418,24 +557,27 @@ export default function AdminProducts() {
                 })}
               </div>
 
-              {/* Footer */}
-              <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-muted/30">
-                <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  {t(
-                    `Showing ${products.length} of ${data?.total ?? products.length} products`,
-                    `عرض ${products.length} من ${data?.total ?? products.length} منتج`,
-                  )}
-                </p>
-                <button
-                  onClick={() => setLocation("/admin/pricing")}
-                  className="text-xs font-bold text-primary hover:underline"
-                  data-testid="link-pricing-rules"
-                >
-                  {t("Manage pricing rules →", "إدارة قواعد التسعير ←")}
-                </button>
-              </div>
             </>
+          )}
+
+          {/* Footer */}
+          {!isLoading && products.length > 0 && (
+            <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-muted/30">
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <TrendingUp className="w-3.5 h-3.5" />
+                {t(
+                  `Showing ${products.length} of ${data?.total ?? products.length} products`,
+                  `عرض ${products.length} من ${data?.total ?? products.length} منتج`,
+                )}
+              </p>
+              <button
+                onClick={() => setLocation("/admin/pricing")}
+                className="text-xs font-bold text-primary hover:underline"
+                data-testid="link-pricing-rules"
+              >
+                {t("Manage pricing rules →", "إدارة قواعد التسعير ←")}
+              </button>
+            </div>
           )}
         </div>
       </div>
