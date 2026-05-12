@@ -39,6 +39,7 @@ export default function RetailerProducts() {
       unit: product.unit,
       priceSSP: product.priceSSP,
       priceUSD: product.priceUSD,
+      imageUrl: product.imageUrl,
     });
     toast({ title: t("Added to cart", "أضيف للسلة"), description: lang === "ar" ? product.nameAr : product.name });
   };

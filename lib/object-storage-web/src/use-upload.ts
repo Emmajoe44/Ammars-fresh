@@ -16,6 +16,8 @@ interface UploadResponse {
 interface UseUploadOptions {
   /** Base path where object storage routes are mounted (default: "/api/storage") */
   basePath?: string;
+  /** Optional callback returning extra headers (e.g. Authorization) for the request-url call. */
+  getRequestHeaders?: () => Record<string, string>;
   onSuccess?: (response: UploadResponse) => void;
   onError?: (error: Error) => void;
 }
@@ -65,6 +67,7 @@ export function useUpload(options: UseUploadOptions = {}) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(options.getRequestHeaders?.() ?? {}),
         },
         body: JSON.stringify({
           name: file.name,
@@ -80,7 +83,7 @@ export function useUpload(options: UseUploadOptions = {}) {
 
       return response.json();
     },
-    []
+    [basePath, options]
   );
 
   const uploadToPresignedUrl = useCallback(

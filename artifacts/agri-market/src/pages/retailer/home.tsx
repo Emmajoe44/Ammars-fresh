@@ -148,7 +148,7 @@ export default function RetailerHome() {
                       size="sm"
                       className="w-full"
                       onClick={() => {
-                        addItem({ productId: product.id, productName: product.name, quantity: 1, unit: product.unit, priceSSP: product.priceSSP, priceUSD: product.priceUSD });
+                        addItem({ productId: product.id, productName: product.name, quantity: 1, unit: product.unit, priceSSP: product.priceSSP, priceUSD: product.priceUSD, imageUrl: product.imageUrl });
                         setLocation("/retailer/cart");
                       }}
                       data-testid={`button-add-to-cart-${product.id}`}

@@ -13,6 +13,12 @@ interface ImageUploadProps {
 export function ImageUpload({ value, onChange, label = "Product image" }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { uploadFile, isUploading } = useUpload({
+    getRequestHeaders: () => {
+      const t = typeof window !== "undefined" ? localStorage.getItem("agrimarket_token") : null;
+      const headers: Record<string, string> = {};
+      if (t) headers.Authorization = `Bearer ${t}`;
+      return headers;
+    },
     onSuccess: (res) => onChange(res.objectPath),
   });
 

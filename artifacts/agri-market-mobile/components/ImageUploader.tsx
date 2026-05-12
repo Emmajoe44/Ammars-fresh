@@ -1,4 +1,5 @@
 import { Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import React, { useState } from "react";
 import { ActivityIndicator, Alert, Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
@@ -47,9 +48,13 @@ export function ImageUploader({ value, onChange, label = "Product image" }: Prop
       const fileSize = asset.fileSize ?? 0;
 
       const base = process.env.EXPO_PUBLIC_DOMAIN ? `https://${process.env.EXPO_PUBLIC_DOMAIN}` : "";
+      const token = await AsyncStorage.getItem("agrimarket_token");
       const reqRes = await fetch(`${base}/api/storage/uploads/request-url`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ name: filename, size: fileSize || 1, contentType }),
       });
       if (!reqRes.ok) throw new Error("Failed to get upload URL");

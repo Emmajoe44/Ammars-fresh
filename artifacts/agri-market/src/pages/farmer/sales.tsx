@@ -1,8 +1,10 @@
 import { useLang } from "@/contexts/LangContext";
 import { useGetFarmerStats, getGetFarmerStatsQueryKey } from "@workspace/api-client-react";
 import { AppLayout } from "@/components/Layout";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { TrendingUp, Package, DollarSign, ShoppingBag } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
+import { TrendingUp, Package, DollarSign, ShoppingBag, PieChart as PieIcon } from "lucide-react";
+
+const PIE_COLORS = ["hsl(var(--primary))", "hsl(var(--secondary))", "#f59e0b", "#3b82f6", "#8b5cf6", "#ef4444", "#10b981"];
 
 export default function FarmerSales() {
   const { t } = useLang();
@@ -52,6 +54,39 @@ export default function FarmerSales() {
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px" }} />
                 <Bar dataKey="SSP" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {/* Revenue share pie */}
+        {chartData.length > 0 && (
+          <div className="bg-card border border-border rounded-2xl p-4 mb-6">
+            <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
+              <PieIcon className="w-4 h-4 text-primary" />
+              {t("Revenue Share", "حصة الإيرادات")}
+            </h2>
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  dataKey="SSP"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={75}
+                  innerRadius={42}
+                  paddingAngle={2}
+                >
+                  {chartData.map((_, i) => (
+                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px" }}
+                  formatter={(v: number) => `SSP ${v.toLocaleString()}`}
+                />
+                <Legend wrapperStyle={{ fontSize: 11 }} iconSize={10} />
+              </PieChart>
             </ResponsiveContainer>
           </div>
         )}

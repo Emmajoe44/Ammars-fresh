@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Minus, Plus, Trash2, ShoppingBasket, MapPin, Leaf } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { resolveImageSrc } from "@/lib/image-url";
 
 export default function RetailerCart() {
   const { user } = useAuth();
@@ -87,8 +88,12 @@ export default function RetailerCart() {
                 className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3"
                 data-testid={`cart-item-${item.productId}`}
               >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Leaf className="w-6 h-6 text-primary/40" />
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  {resolveImageSrc(item.imageUrl) ? (
+                    <img src={resolveImageSrc(item.imageUrl)!} alt={item.productName} className="w-full h-full object-cover" />
+                  ) : (
+                    <Leaf className="w-6 h-6 text-primary/40" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm text-foreground truncate">{item.productName}</p>
