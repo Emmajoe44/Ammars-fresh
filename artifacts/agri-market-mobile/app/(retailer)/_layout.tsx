@@ -98,6 +98,7 @@ function ClassicTabLayout() {
             isIOS ? <SymbolView name="person" tintColor={color} size={24} /> : <Feather name="user" size={22} color={color} />,
         }}
       />
+      <Tabs.Screen name="order-detail" options={{ href: null }} />
     </Tabs>
   );
 }

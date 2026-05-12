@@ -1,13 +1,14 @@
+import { Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Tabs } from "expo-router";
 import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import { SymbolView } from "expo-symbols";
-import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View, useColorScheme } from "react-native";
-import { useColors } from "@/hooks/useColors";
+
 import { RoleGuard } from "@/components/RoleGuard";
+import { useColors } from "@/hooks/useColors";
 
 function NativeTabLayout() {
   return (
@@ -16,9 +17,13 @@ function NativeTabLayout() {
         <Icon sf={{ default: "leaf", selected: "leaf.fill" }} />
         <Label>Products</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="add-product">
+        <Icon sf={{ default: "plus.circle", selected: "plus.circle.fill" }} />
+        <Label>Add</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="stats">
         <Icon sf={{ default: "chart.bar", selected: "chart.bar.fill" }} />
-        <Label>Stats</Label>
+        <Label>Sales</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="profile">
         <Icon sf={{ default: "person", selected: "person.fill" }} />
@@ -66,9 +71,17 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
+        name="add-product"
+        options={{
+          title: "Add",
+          tabBarIcon: ({ color }) =>
+            isIOS ? <SymbolView name="plus.circle" tintColor={color} size={24} /> : <Feather name="plus-circle" size={22} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="stats"
         options={{
-          title: "Stats",
+          title: "Sales",
           tabBarIcon: ({ color }) =>
             isIOS ? <SymbolView name="chart.bar" tintColor={color} size={24} /> : <Feather name="bar-chart-2" size={22} color={color} />,
         }}
@@ -81,6 +94,7 @@ function ClassicTabLayout() {
             isIOS ? <SymbolView name="person" tintColor={color} size={24} /> : <Feather name="user" size={22} color={color} />,
         }}
       />
+      <Tabs.Screen name="edit-product" options={{ href: null }} />
     </Tabs>
   );
 }

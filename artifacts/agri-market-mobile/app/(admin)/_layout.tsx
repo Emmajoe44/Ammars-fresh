@@ -1,13 +1,14 @@
+import { Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Tabs } from "expo-router";
 import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import { SymbolView } from "expo-symbols";
-import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View, useColorScheme } from "react-native";
-import { useColors } from "@/hooks/useColors";
+
 import { RoleGuard } from "@/components/RoleGuard";
+import { useColors } from "@/hooks/useColors";
 
 function NativeTabLayout() {
   return (
@@ -20,9 +21,17 @@ function NativeTabLayout() {
         <Icon sf={{ default: "list.bullet.clipboard", selected: "list.bullet.clipboard.fill" }} />
         <Label>Orders</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="profile">
-        <Icon sf={{ default: "person", selected: "person.fill" }} />
-        <Label>Profile</Label>
+      <NativeTabs.Trigger name="trucks">
+        <Icon sf={{ default: "truck.box", selected: "truck.box.fill" }} />
+        <Label>Trucks</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="users">
+        <Icon sf={{ default: "person.2", selected: "person.2.fill" }} />
+        <Label>Users</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="more">
+        <Icon sf={{ default: "ellipsis.circle", selected: "ellipsis.circle.fill" }} />
+        <Label>More</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
@@ -74,13 +83,33 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="trucks"
         options={{
-          title: "Profile",
+          title: "Trucks",
           tabBarIcon: ({ color }) =>
-            isIOS ? <SymbolView name="person" tintColor={color} size={24} /> : <Feather name="user" size={22} color={color} />,
+            isIOS ? <SymbolView name="truck.box" tintColor={color} size={24} /> : <Feather name="truck" size={22} color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="users"
+        options={{
+          title: "Users",
+          tabBarIcon: ({ color }) =>
+            isIOS ? <SymbolView name="person.2" tintColor={color} size={24} /> : <Feather name="users" size={22} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="more"
+        options={{
+          title: "More",
+          tabBarIcon: ({ color }) =>
+            isIOS ? <SymbolView name="ellipsis.circle" tintColor={color} size={24} /> : <Feather name="more-horizontal" size={22} color={color} />,
+        }}
+      />
+      <Tabs.Screen name="profile" options={{ href: null }} />
+      <Tabs.Screen name="pricing" options={{ href: null }} />
+      <Tabs.Screen name="analytics" options={{ href: null }} />
+      <Tabs.Screen name="order-detail" options={{ href: null }} />
     </Tabs>
   );
 }

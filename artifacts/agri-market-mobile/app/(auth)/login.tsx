@@ -1,9 +1,9 @@
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLogin } from "@workspace/api-client-react";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -12,26 +12,26 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { useColors } from "@/hooks/useColors";
 
 export default function LoginScreen() {
   const colors = useColors();
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { signIn } = useAuth();
   const loginMutation = useLogin();
 
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
 
-  const handleLogin = async () => {
-    if (!phone.trim() || !password.trim()) {
-      Alert.alert("Missing fields", "Please enter your phone and password.");
+  const handleSubmit = async () => {
+    if (!phone.trim() || !password) {
+      Alert.alert("Missing info", "Please enter your phone number and password.");
       return;
     }
     try {
@@ -46,123 +46,160 @@ export default function LoginScreen() {
     }
   };
 
-  const topPad = Platform.OS === "web" ? 67 : insets.top + 20;
+  const fillDemo = (p: string, pw: string) => {
+    setPhone(p);
+    setPassword(pw);
+  };
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingTop: topPad, paddingBottom: insets.bottom + 40 }]}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={[styles.logoWrap, { backgroundColor: colors.primary, borderRadius: colors.radius * 2 }]}>
-          <MaterialCommunityIcons name="leaf" size={40} color="#fff" />
-        </View>
-
-        <Text style={[styles.title, { color: colors.foreground }]}>Welcome back</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-          Sign in to your AgriMarket account
-        </Text>
-
-        <View style={[styles.inputWrap, { borderColor: colors.border, borderRadius: colors.radius, backgroundColor: colors.card }]}>
-          <Feather name="phone" size={18} color={colors.mutedForeground} style={styles.inputIcon} />
-          <TextInput
-            style={[styles.input, { color: colors.foreground }]}
-            placeholder="+211 9XX XXX XXX"
-            placeholderTextColor={colors.mutedForeground}
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-            autoCapitalize="none"
-          />
-        </View>
-
-        <View style={[styles.inputWrap, { borderColor: colors.border, borderRadius: colors.radius, backgroundColor: colors.card }]}>
-          <Feather name="lock" size={18} color={colors.mutedForeground} style={styles.inputIcon} />
-          <TextInput
-            style={[styles.input, { color: colors.foreground }]}
-            placeholder="Password"
-            placeholderTextColor={colors.mutedForeground}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-          />
-          <Pressable onPress={() => setShowPassword((v) => !v)} style={styles.eyeBtn}>
-            <Feather name={showPassword ? "eye-off" : "eye"} size={18} color={colors.mutedForeground} />
-          </Pressable>
-        </View>
-
-        <Pressable
-          style={({ pressed }) => [
-            styles.signInBtn,
-            { backgroundColor: colors.primary, borderRadius: colors.radius, opacity: pressed ? 0.85 : 1 },
-          ]}
-          onPress={handleLogin}
-          disabled={loginMutation.isPending}
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <LinearGradient
+        colors={[colors.primary + "1A", colors.background, colors.secondary + "10"]}
+        style={StyleSheet.absoluteFill}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {loginMutation.isPending ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.signInText}>Sign In</Text>
-          )}
-        </Pressable>
+          <View style={styles.brandRow}>
+            <View style={[styles.brandIcon, { backgroundColor: colors.primary }]}>
+              <MaterialCommunityIcons name="leaf" size={22} color="#fff" />
+            </View>
+            <Text style={[styles.brandText, { color: colors.foreground }]}>AgriMarket</Text>
+          </View>
 
-        <View style={[styles.demoBox, { backgroundColor: colors.muted, borderRadius: colors.radius }]}>
-          <Text style={[styles.demoTitle, { color: colors.mutedForeground }]}>Demo accounts:</Text>
-          <Text style={[styles.demoRow, { color: colors.mutedForeground }]}>Admin: +211900000001 / admin123</Text>
-          <Text style={[styles.demoRow, { color: colors.mutedForeground }]}>Farmer: +211900000002 / farmer123</Text>
-          <Text style={[styles.demoRow, { color: colors.mutedForeground }]}>Retailer: +211900000004 / retailer123</Text>
-        </View>
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.title, { color: colors.foreground }]}>Welcome back</Text>
+            <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+              Sign in to your AgriMarket account
+            </Text>
 
-        <Pressable onPress={() => router.push("/(auth)/register")} style={styles.registerLink}>
-          <Text style={[styles.registerText, { color: colors.mutedForeground }]}>
-            No account?{" "}
-            <Text style={{ color: colors.primary, fontWeight: "700" }}>Register here</Text>
+            <Text style={[styles.label, { color: colors.foreground }]}>Phone number</Text>
+            <View style={[styles.inputWrap, { backgroundColor: colors.background, borderColor: colors.border }]}>
+              <Feather name="phone" size={16} color={colors.mutedForeground} />
+              <TextInput
+                style={[styles.input, { color: colors.foreground }]}
+                placeholder="+211 9XX XXX XXX"
+                placeholderTextColor={colors.mutedForeground}
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+                autoCapitalize="none"
+                autoComplete="tel"
+              />
+            </View>
+
+            <Text style={[styles.label, { color: colors.foreground, marginTop: 14 }]}>Password</Text>
+            <View style={[styles.inputWrap, { backgroundColor: colors.background, borderColor: colors.border }]}>
+              <Feather name="lock" size={16} color={colors.mutedForeground} />
+              <TextInput
+                style={[styles.input, { color: colors.foreground }]}
+                placeholder="••••••••"
+                placeholderTextColor={colors.mutedForeground}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPwd}
+                autoComplete="current-password"
+              />
+              <TouchableOpacity onPress={() => setShowPwd((v) => !v)} hitSlop={8}>
+                <Feather name={showPwd ? "eye-off" : "eye"} size={16} color={colors.mutedForeground} />
+              </TouchableOpacity>
+            </View>
+
+            <Pressable
+              onPress={handleSubmit}
+              disabled={loginMutation.isPending}
+              style={({ pressed }) => [
+                styles.primaryBtn,
+                { backgroundColor: colors.primary, opacity: pressed || loginMutation.isPending ? 0.85 : 1 },
+              ]}
+            >
+              <Text style={styles.primaryBtnText}>
+                {loginMutation.isPending ? "Signing in..." : "Sign In"}
+              </Text>
+            </Pressable>
+
+            <View style={[styles.demoBox, { backgroundColor: colors.muted, borderColor: colors.border }]}>
+              <Text style={[styles.demoTitle, { color: colors.foreground }]}>Demo accounts</Text>
+              {[
+                { role: "Admin", phone: "+211900000001", pw: "admin123" },
+                { role: "Farmer", phone: "+211900000002", pw: "farmer123" },
+                { role: "Retailer", phone: "+211900000004", pw: "retailer123" },
+              ].map((d) => (
+                <TouchableOpacity
+                  key={d.phone}
+                  onPress={() => fillDemo(d.phone, d.pw)}
+                  style={styles.demoRow}
+                >
+                  <Text style={[styles.demoRole, { color: colors.primary }]}>{d.role}</Text>
+                  <Text style={[styles.demoText, { color: colors.mutedForeground }]}>{d.phone}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={styles.footerRow}>
+              <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>No account? </Text>
+              <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
+                <Text style={[styles.link, { color: colors.primary }]}>Register here</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <Text style={[styles.tagline, { color: colors.mutedForeground }]}>
+            South Sudan's agricultural marketplace · Farm to market
           </Text>
-        </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  scroll: { paddingHorizontal: 24, alignItems: "stretch" },
-  logoWrap: {
-    width: 80,
-    height: 80,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 28,
-    alignSelf: "center",
+  scroll: { flexGrow: 1, justifyContent: "center", padding: 20, paddingTop: 60, paddingBottom: 40 },
+  brandRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 24, justifyContent: "center" },
+  brandIcon: { width: 36, height: 36, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  brandText: { fontSize: 22, fontWeight: "800", letterSpacing: -0.5 },
+  card: {
+    borderRadius: 20,
+    borderWidth: StyleSheet.hairlineWidth,
+    padding: 24,
+    ...Platform.select({
+      ios: { shadowColor: "#1a1410", shadowOpacity: 0.08, shadowRadius: 24, shadowOffset: { width: 0, height: 8 } },
+      android: { elevation: 4 },
+      web: { boxShadow: "0 12px 32px rgba(26, 20, 16, 0.08)" } as any,
+      default: {},
+    }),
   },
-  title: { fontSize: 28, fontWeight: "800", textAlign: "center", marginBottom: 8 },
-  subtitle: { fontSize: 15, textAlign: "center", marginBottom: 32 },
+  title: { fontSize: 26, fontWeight: "800", letterSpacing: -0.5, marginBottom: 6 },
+  subtitle: { fontSize: 14, marginBottom: 22 },
+  label: { fontSize: 13, fontWeight: "600", marginBottom: 6 },
   inputWrap: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    marginBottom: 14,
+    gap: 10,
     paddingHorizontal: 14,
-    height: 54,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: StyleSheet.hairlineWidth,
   },
-  inputIcon: { marginRight: 10 },
-  input: { flex: 1, fontSize: 16, height: "100%" },
-  eyeBtn: { padding: 4 },
-  signInBtn: {
-    height: 54,
+  input: { flex: 1, fontSize: 15, paddingVertical: 0 },
+  primaryBtn: {
+    marginTop: 22,
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: "center",
-    justifyContent: "center",
-    marginTop: 8,
-    marginBottom: 24,
   },
-  signInText: { color: "#fff", fontSize: 16, fontWeight: "700" },
-  demoBox: { padding: 14, marginBottom: 20 },
-  demoTitle: { fontWeight: "700", marginBottom: 6, fontSize: 13 },
-  demoRow: { fontSize: 12, marginBottom: 2 },
-  registerLink: { alignItems: "center" },
-  registerText: { fontSize: 14 },
+  primaryBtnText: { color: "#fff", fontSize: 15, fontWeight: "700" },
+  demoBox: { marginTop: 18, padding: 14, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, gap: 4 },
+  demoTitle: { fontSize: 12, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 },
+  demoRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 4 },
+  demoRole: { fontSize: 13, fontWeight: "700", width: 70 },
+  demoText: { fontSize: 12, fontVariant: ["tabular-nums"] },
+  footerRow: { flexDirection: "row", justifyContent: "center", marginTop: 18 },
+  link: { fontSize: 14, fontWeight: "700" },
+  tagline: { fontSize: 12, textAlign: "center", marginTop: 24 },
 });

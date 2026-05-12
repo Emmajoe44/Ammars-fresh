@@ -43,23 +43,25 @@ export default function FarmerStats() {
                 label="Total Products"
                 value={stats?.totalProducts ?? 0}
                 icon="package"
+                tone="info"
               />
               <StatCard
                 label="Active Listings"
                 value={stats?.activeProducts ?? 0}
                 icon="check-circle"
-                accent
+                tone="success"
               />
               <StatCard
                 label="Orders This Month"
                 value={stats?.ordersThisMonth ?? 0}
                 icon="shopping-bag"
+                tone="secondary"
               />
               <StatCard
                 label="Total Revenue"
                 value={formatRevenue(stats?.totalSalesSSP ?? 0, stats?.totalSalesUSD ?? 0)}
                 icon="trending-up"
-                accent
+                tone="primary"
               />
             </View>
 
