@@ -19,7 +19,7 @@ export default function Index() {
     return <Redirect href="/(auth)/login" />;
   }
 
-  if (user?.role === "farmer") return <Redirect href="/(farmer)/" />;
-  if (user?.role === "admin") return <Redirect href="/(admin)/" />;
-  return <Redirect href="/(retailer)/" />;
+  if (user?.role === "farmer") return <Redirect href="/(farmer)" />;
+  if (user?.role === "admin") return <Redirect href="/(admin)" />;
+  return <Redirect href="/(retailer)" />;
 }

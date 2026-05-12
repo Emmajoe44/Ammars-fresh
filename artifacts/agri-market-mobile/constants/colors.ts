@@ -1,4 +1,4 @@
-const colors = {
+const palette = {
   light: {
     text: "#261c17",
     tint: "#2d753e",
@@ -21,6 +21,7 @@ const colors = {
     success: "#2d753e",
     warning: "#e9850c",
     info: "#3b82f6",
+    radius: 12,
   },
   dark: {
     text: "#f5f2ea",
@@ -44,8 +45,8 @@ const colors = {
     success: "#3d9b52",
     warning: "#f08e15",
     info: "#60a5fa",
+    radius: 12,
   },
-  radius: 12,
 };
 
-export default colors;
+export default palette;

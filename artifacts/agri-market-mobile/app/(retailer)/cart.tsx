@@ -41,7 +41,8 @@ export default function CartScreen() {
     try {
       await createOrderMutation.mutateAsync({
         data: {
-          deliveryAddress: address.trim(),
+          currency,
+          deliveryLocation: address.trim(),
           items: items.map((i) => ({
             productId: i.productId,
             productName: i.name,

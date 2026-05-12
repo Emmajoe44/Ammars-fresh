@@ -7,6 +7,7 @@ import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View, useColorScheme } from "react-native";
 import { useColors } from "@/hooks/useColors";
+import { RoleGuard } from "@/components/RoleGuard";
 
 function NativeTabLayout() {
   return (
@@ -85,6 +86,9 @@ function ClassicTabLayout() {
 }
 
 export default function AdminLayout() {
-  if (isLiquidGlassAvailable()) return <NativeTabLayout />;
-  return <ClassicTabLayout />;
+  return (
+    <RoleGuard allow="admin">
+      {isLiquidGlassAvailable() ? <NativeTabLayout /> : <ClassicTabLayout />}
+    </RoleGuard>
+  );
 }

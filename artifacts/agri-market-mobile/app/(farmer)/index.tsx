@@ -1,6 +1,10 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { useListProducts, useToggleProductAvailability } from "@workspace/api-client-react";
+import {
+  getListProductsQueryKey,
+  useListProducts,
+  useToggleProductAvailability,
+} from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import {
@@ -27,7 +31,12 @@ export default function FarmerProducts() {
 
   const { data, isLoading, refetch, isRefetching } = useListProducts(
     { farmerId: user?.id },
-    { query: { enabled: !!user?.id } }
+    {
+      query: {
+        enabled: !!user?.id,
+        queryKey: getListProductsQueryKey({ farmerId: user?.id }),
+      },
+    }
   );
   const toggleMutation = useToggleProductAvailability();
 
@@ -60,7 +69,7 @@ export default function FarmerProducts() {
         </View>
       ) : products.length === 0 ? (
         <View style={styles.empty}>
-          <Feather name="leaf" size={52} color={colors.mutedForeground} />
+          <MaterialCommunityIcons name="leaf" size={52} color={colors.mutedForeground} />
           <Text style={[styles.emptyTitle, { color: colors.foreground }]}>No products yet</Text>
           <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
             Your listed products will appear here
@@ -92,18 +101,18 @@ export default function FarmerProducts() {
                   <Text style={[styles.productName, { color: colors.foreground }]} numberOfLines={1}>
                     {item.name}
                   </Text>
-                  <View style={[styles.gradeBadge, { backgroundColor: gradeColor(item.qualityGrade) + "20", borderRadius: 6 }]}>
-                    <Text style={[styles.gradeText, { color: gradeColor(item.qualityGrade) }]}>
-                      {item.qualityGrade}
+                  <View style={[styles.gradeBadge, { backgroundColor: gradeColor(item.qualityGrade ?? "A") + "20", borderRadius: 6 }]}>
+                    <Text style={[styles.gradeText, { color: gradeColor(item.qualityGrade ?? "A") }]}>
+                      {item.qualityGrade ?? "A"}
                     </Text>
                   </View>
                 </View>
                 <Text style={[styles.productAr, { color: colors.mutedForeground }]}>{item.nameAr}</Text>
                 <View style={styles.priceRow}>
                   <Text style={[styles.price, { color: colors.primary }]}>
-                    SSP {item.priceSSP} / {item.unit}
+                    SSP {item.priceSSP} / {item.unit ?? "unit"}
                   </Text>
-                  <Text style={[styles.qty, { color: colors.mutedForeground }]}>{item.quantity} {item.unit} left</Text>
+                  <Text style={[styles.qty, { color: colors.mutedForeground }]}>{item.quantity} {item.unit ?? "unit"} left</Text>
                 </View>
               </View>
               <Switch

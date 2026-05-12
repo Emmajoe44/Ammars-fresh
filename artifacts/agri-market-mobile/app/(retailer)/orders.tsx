@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import { useListOrders } from "@workspace/api-client-react";
+import { getListOrdersQueryKey, useListOrders } from "@workspace/api-client-react";
 import React from "react";
 import { ActivityIndicator, FlatList, Platform, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,7 +15,12 @@ export default function RetailerOrders() {
 
   const { data, isLoading, refetch, isRefetching } = useListOrders(
     { retailerId: user?.id },
-    { query: { enabled: !!user?.id } }
+    {
+      query: {
+        enabled: !!user?.id,
+        queryKey: getListOrdersQueryKey({ retailerId: user?.id }),
+      },
+    }
   );
 
   const orders = data?.orders ?? [];
@@ -52,7 +57,7 @@ export default function RetailerOrders() {
             <OrderCard
               id={item.id}
               status={item.status}
-              deliveryAddress={item.deliveryAddress ?? ""}
+              deliveryLocation={item.deliveryLocation}
               totalSSP={item.totalSSP}
               totalUSD={item.totalUSD}
               itemCount={Array.isArray(item.items) ? item.items.length : 0}

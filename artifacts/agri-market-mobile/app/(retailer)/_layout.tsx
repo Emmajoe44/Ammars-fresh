@@ -1,14 +1,14 @@
 import { BlurView } from "expo-blur";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Tabs } from "expo-router";
-import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
+import { Badge, Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import { SymbolView } from "expo-symbols";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View, useColorScheme } from "react-native";
 import { useColors } from "@/hooks/useColors";
 import { useCart } from "@/contexts/CartContext";
-import { Badge } from "expo-router/unstable-native-tabs";
+import { RoleGuard } from "@/components/RoleGuard";
 
 function NativeTabLayout() {
   const { count } = useCart();
@@ -21,7 +21,7 @@ function NativeTabLayout() {
       <NativeTabs.Trigger name="cart">
         <Icon sf={{ default: "cart", selected: "cart.fill" }} />
         <Label>Cart</Label>
-        {count > 0 && <Badge>{count}</Badge>}
+        {count > 0 && <Badge>{String(count)}</Badge>}
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="orders">
         <Icon sf={{ default: "list.bullet.clipboard", selected: "list.bullet.clipboard.fill" }} />
@@ -103,6 +103,9 @@ function ClassicTabLayout() {
 }
 
 export default function RetailerLayout() {
-  if (isLiquidGlassAvailable()) return <NativeTabLayout />;
-  return <ClassicTabLayout />;
+  return (
+    <RoleGuard allow="retailer">
+      {isLiquidGlassAvailable() ? <NativeTabLayout /> : <ClassicTabLayout />}
+    </RoleGuard>
+  );
 }

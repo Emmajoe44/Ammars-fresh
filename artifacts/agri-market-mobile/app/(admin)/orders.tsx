@@ -93,7 +93,7 @@ export default function AdminOrders() {
             <OrderCard
               id={item.id}
               status={item.status}
-              deliveryAddress={item.deliveryAddress ?? ""}
+              deliveryLocation={item.deliveryLocation}
               totalSSP={item.totalSSP}
               totalUSD={item.totalUSD}
               itemCount={Array.isArray(item.items) ? item.items.length : 0}

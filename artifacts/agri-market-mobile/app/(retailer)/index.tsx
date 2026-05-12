@@ -140,6 +140,7 @@ export default function RetailerHome() {
           renderItem={({ item }) => (
             <ProductCard
               {...item}
+              unit={item.unit ?? "unit"}
               currency={currency}
               onAddToCart={() => {
                 addItem({
@@ -148,7 +149,7 @@ export default function RetailerHome() {
                   nameAr: item.nameAr,
                   priceSSP: item.priceSSP,
                   priceUSD: item.priceUSD,
-                  unit: item.unit,
+                  unit: item.unit ?? "unit",
                   farmerName: item.farmerName ?? "",
                   farmName: item.farmName ?? null,
                   available: item.available,

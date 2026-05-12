@@ -7,13 +7,13 @@ import { useColors } from "@/hooks/useColors";
 interface ProductCardProps {
   id: number;
   name: string;
-  farmerName: string | null;
-  farmName: string | null;
+  farmerName?: string | null;
+  farmName?: string | null;
   priceSSP: number;
   priceUSD: number;
   quantity: number;
   unit: string;
-  qualityGrade: string;
+  qualityGrade?: string;
   available: boolean;
   currency?: "SSP" | "USD";
   onAddToCart?: () => void;

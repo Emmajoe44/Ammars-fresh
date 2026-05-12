@@ -1,4 +1,4 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLogin } from "@workspace/api-client-react";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -38,9 +38,9 @@ export default function LoginScreen() {
       const response = await loginMutation.mutateAsync({ data: { phone: phone.trim(), password } });
       await signIn(response.token, response.user as any);
       const role = response.user.role;
-      if (role === "farmer") router.replace("/(farmer)/");
-      else if (role === "admin") router.replace("/(admin)/");
-      else router.replace("/(retailer)/");
+      if (role === "farmer") router.replace("/(farmer)");
+      else if (role === "admin") router.replace("/(admin)");
+      else router.replace("/(retailer)");
     } catch {
       Alert.alert("Login failed", "Invalid phone number or password.");
     }
@@ -59,7 +59,7 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.logoWrap, { backgroundColor: colors.primary, borderRadius: colors.radius * 2 }]}>
-          <Feather name="leaf" size={36} color="#fff" />
+          <MaterialCommunityIcons name="leaf" size={40} color="#fff" />
         </View>
 
         <Text style={[styles.title, { color: colors.foreground }]}>Welcome back</Text>

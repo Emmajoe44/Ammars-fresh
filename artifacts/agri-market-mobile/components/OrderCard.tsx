@@ -17,7 +17,7 @@ const STATUS_CONFIG: Record<OrderStatus, { label: string; icon: string; color: s
 interface OrderCardProps {
   id: number;
   status: string;
-  deliveryAddress: string;
+  deliveryLocation?: string | null;
   totalSSP: number;
   totalUSD: number;
   itemCount: number;
@@ -28,7 +28,7 @@ interface OrderCardProps {
 export function OrderCard({
   id,
   status,
-  deliveryAddress,
+  deliveryLocation,
   totalSSP,
   totalUSD,
   itemCount,
@@ -74,7 +74,7 @@ export function OrderCard({
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
       <Text style={[styles.address, { color: colors.foreground }]} numberOfLines={1}>
-        <Feather name="map-pin" size={12} color={colors.mutedForeground} /> {deliveryAddress}
+        <Feather name="map-pin" size={12} color={colors.mutedForeground} /> {deliveryLocation ?? "No address"}
       </Text>
 
       <View style={styles.footer}>

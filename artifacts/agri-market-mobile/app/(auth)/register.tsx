@@ -1,4 +1,4 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRegister } from "@workspace/api-client-react";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -53,8 +53,8 @@ export default function RegisterScreen() {
         },
       });
       await signIn(response.token, response.user as any);
-      if (role === "farmer") router.replace("/(farmer)/");
-      else router.replace("/(retailer)/");
+      if (role === "farmer") router.replace("/(farmer)");
+      else router.replace("/(retailer)");
     } catch {
       Alert.alert("Registration failed", "This phone number may already be registered.");
     }
@@ -77,7 +77,7 @@ export default function RegisterScreen() {
         </Pressable>
 
         <View style={[styles.logoWrap, { backgroundColor: colors.primary, borderRadius: colors.radius * 2 }]}>
-          <Feather name="leaf" size={36} color="#fff" />
+          <MaterialCommunityIcons name="leaf" size={40} color="#fff" />
         </View>
 
         <Text style={[styles.title, { color: colors.foreground }]}>Join AgriMarket</Text>
