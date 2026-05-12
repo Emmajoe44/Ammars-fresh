@@ -7,14 +7,14 @@ import { Card } from "@/components/Card";
 import { EmptyState } from "@/components/EmptyState";
 import { Header } from "@/components/Header";
 import { StatCard } from "@/components/StatCard";
-import { useAuth } from "@/contexts/AuthContext";
 import { useColors } from "@/hooks/useColors";
+import { useFormatRevenue } from "@/hooks/useFormatRevenue";
 
 const PIE_COLORS = ["#2d753e", "#e9850c", "#3b82f6", "#a855f7", "#f43f5e", "#10b981"];
 
 export default function AdminAnalytics() {
   const colors = useColors();
-  const { currency } = useAuth();
+  const formatRevenue = useFormatRevenue();
   const { data: demand, isLoading: dLoading } = useGetDemandAnalytics();
   const { data: stats } = useGetAdminStats();
 
@@ -46,12 +46,6 @@ export default function AdminAnalytics() {
   const maxDaily = Math.max(1, ...dailyOrders.map((p) => p.orders));
   const totalProductOrders = byProduct.reduce((acc, p) => acc + p.orders, 0);
 
-  const formatRevenue = () => {
-    if (!stats) return "—";
-    if (currency === "USD") return `$${Number(stats.revenueUSD ?? 0).toFixed(2)}`;
-    return `SSP ${Number(stats.revenueSSP ?? 0).toLocaleString()}`;
-  };
-
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Header title="Demand analytics" subtitle="Order trends and category mix" showBack />
@@ -63,7 +57,7 @@ export default function AdminAnalytics() {
       ) : (
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
           <View style={styles.statsRow}>
-            <StatCard label="Revenue" value={formatRevenue()} icon="trending-up" tone="primary" />
+            <StatCard label="Revenue" value={stats ? formatRevenue(stats.revenueSSP, stats.revenueUSD) : "—"} icon="trending-up" tone="primary" />
             <StatCard label="Total orders" value={stats?.totalOrders ?? 0} icon="shopping-bag" tone="secondary" />
           </View>
           <View style={styles.statsRow}>

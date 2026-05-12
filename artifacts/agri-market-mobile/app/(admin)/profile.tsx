@@ -69,14 +69,19 @@ export default function AdminProfile() {
 
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>System</Text>
-        {[
-          { icon: "users", label: "User Management", desc: "Manage farmers & retailers" },
-          { icon: "truck", label: "Fleet Management", desc: "GPS truck tracking" },
-          { icon: "bar-chart-2", label: "Analytics", desc: "Demand & revenue insights" },
-        ].map(({ icon, label, desc }) => (
-          <View
+        {([
+          { icon: "users", label: "User Management", desc: "Manage farmers & retailers", href: "/(admin)/users" },
+          { icon: "truck", label: "Fleet Management", desc: "GPS truck tracking", href: "/(admin)/trucks" },
+          { icon: "bar-chart-2", label: "Analytics", desc: "Demand & revenue insights", href: "/(admin)/analytics" },
+          { icon: "tag", label: "Pricing rules", desc: "Set min/max prices per category", href: "/(admin)/pricing" },
+        ] as const).map(({ icon, label, desc, href }) => (
+          <Pressable
             key={label}
-            style={[styles.menuItem, { backgroundColor: colors.card, borderColor: colors.border, borderRadius: colors.radius }]}
+            onPress={() => { Haptics.selectionAsync(); router.push(href as any); }}
+            style={({ pressed }) => [
+              styles.menuItem,
+              { backgroundColor: colors.card, borderColor: colors.border, borderRadius: colors.radius, opacity: pressed ? 0.7 : 1 },
+            ]}
           >
             <View style={[styles.menuIcon, { backgroundColor: colors.primary + "18", borderRadius: 10 }]}>
               <Feather name={icon as any} size={18} color={colors.primary} />
@@ -86,7 +91,7 @@ export default function AdminProfile() {
               <Text style={[styles.menuDesc, { color: colors.mutedForeground }]}>{desc}</Text>
             </View>
             <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
-          </View>
+          </Pressable>
         ))}
       </View>
 

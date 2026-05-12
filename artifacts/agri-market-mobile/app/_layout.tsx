@@ -1,10 +1,12 @@
 import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
   useFonts,
-} from "@expo-google-fonts/inter";
+} from "@expo-google-fonts/plus-jakarta-sans";
+import { Text as RNText, TextInput as RNTextInput } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { setBaseUrl } from "@workspace/api-client-react";
 import { Stack } from "expo-router";
@@ -46,14 +48,21 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
   });
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
+      const RNTextAny = RNText as any;
+      const RNTextInputAny = RNTextInput as any;
+      RNTextAny.defaultProps = RNTextAny.defaultProps || {};
+      RNTextAny.defaultProps.style = [{ fontFamily: "PlusJakartaSans_400Regular" }, RNTextAny.defaultProps.style];
+      RNTextInputAny.defaultProps = RNTextInputAny.defaultProps || {};
+      RNTextInputAny.defaultProps.style = [{ fontFamily: "PlusJakartaSans_400Regular" }, RNTextInputAny.defaultProps.style];
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);

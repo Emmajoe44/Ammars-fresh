@@ -9,19 +9,15 @@ import { Header } from "@/components/Header";
 import { StatCard } from "@/components/StatCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useColors } from "@/hooks/useColors";
+import { useFormatRevenue } from "@/hooks/useFormatRevenue";
 
 export default function AdminDashboard() {
   const colors = useColors();
   const router = useRouter();
-  const { user, currency } = useAuth();
+  const { user } = useAuth();
+  const formatRevenue = useFormatRevenue();
 
   const { data: stats, isLoading, refetch, isRefetching } = useGetAdminStats();
-
-  const formatRevenue = () => {
-    if (!stats) return "—";
-    if (currency === "USD") return `$${Number(stats.revenueUSD ?? 0).toFixed(2)}`;
-    return `SSP ${Number(stats.revenueSSP ?? 0).toLocaleString()}`;
-  };
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -39,7 +35,7 @@ export default function AdminDashboard() {
         ) : (
           <>
             <View style={styles.statsRow}>
-              <StatCard label="Revenue" value={formatRevenue()} icon="trending-up" tone="primary" />
+              <StatCard label="Revenue" value={stats ? formatRevenue(stats.revenueSSP, stats.revenueUSD) : "—"} icon="trending-up" tone="primary" />
               <StatCard label="Total orders" value={stats?.totalOrders ?? 0} icon="shopping-bag" tone="secondary" />
             </View>
             <View style={styles.statsRow}>

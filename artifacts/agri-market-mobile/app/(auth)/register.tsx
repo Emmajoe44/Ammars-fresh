@@ -1,5 +1,6 @@
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRegister } from "@workspace/api-client-react";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -72,16 +73,21 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Pressable onPress={() => router.back()} style={[styles.backBtn, { top: topPad }]}>
-          <Feather name="arrow-left" size={24} color={colors.foreground} />
+        <Pressable onPress={() => router.back()} style={[styles.backBtn, { top: topPad, backgroundColor: colors.card, borderColor: colors.border, borderRadius: 999 }]}>
+          <Feather name="arrow-left" size={20} color={colors.foreground} />
         </Pressable>
 
-        <View style={[styles.logoWrap, { backgroundColor: colors.primary, borderRadius: colors.radius * 2 }]}>
+        <LinearGradient
+          colors={[colors.primary, "#1f5a2e"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[styles.logoWrap, { borderRadius: colors.radius * 2 }]}
+        >
           <MaterialCommunityIcons name="leaf" size={40} color="#fff" />
-        </View>
+        </LinearGradient>
 
         <Text style={[styles.title, { color: colors.foreground }]}>Join AgriMarket</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>Create your free account</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>Create your free account in seconds</Text>
 
         <Text style={[styles.label, { color: colors.mutedForeground }]}>I am a</Text>
         <View style={[styles.roleRow]}>
@@ -198,7 +204,7 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { paddingHorizontal: 24, alignItems: "stretch" },
-  backBtn: { position: "absolute", left: 24 },
+  backBtn: { position: "absolute", left: 20, width: 38, height: 38, alignItems: "center", justifyContent: "center", borderWidth: 1, zIndex: 10 },
   logoWrap: { width: 72, height: 72, alignItems: "center", justifyContent: "center", marginBottom: 20, alignSelf: "center", marginTop: 28 },
   title: { fontSize: 26, fontWeight: "800", textAlign: "center", marginBottom: 6 },
   subtitle: { fontSize: 14, textAlign: "center", marginBottom: 24 },

@@ -4,21 +4,17 @@ import React from "react";
 import { ActivityIndicator, FlatList, Platform, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
-import { useAuth } from "@/contexts/AuthContext";
+import { useFormatRevenue } from "@/hooks/useFormatRevenue";
 import { StatCard } from "@/components/StatCard";
 
 export default function FarmerStats() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { currency } = useAuth();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const { data: stats, isLoading, refetch, isRefetching } = useGetFarmerStats();
 
-  const formatRevenue = (ssp: number, usd: number) => {
-    if (currency === "USD") return `$${usd.toFixed(2)}`;
-    return `SSP ${ssp.toLocaleString()}`;
-  };
+  const formatRevenue = useFormatRevenue();
 
   return (
     <ScrollView
@@ -86,7 +82,7 @@ export default function FarmerStats() {
                       </Text>
                     </View>
                     <Text style={[styles.topRevenue, { color: colors.primary }]}>
-                      {currency === "USD" ? `$${Number(p.totalUSD).toFixed(2)}` : `SSP ${Number(p.totalSSP).toLocaleString()}`}
+                      {formatRevenue(p.totalSSP, p.totalUSD)}
                     </Text>
                   </View>
                 ))}
