@@ -53,8 +53,8 @@ export default function AdminAnalytics() {
         {stats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
             {[
-              { label: t("Revenue SSP", "إيرادات بالجنيه"), value: `SSP ${stats.revenueSSP.toLocaleString()}`, icon: TrendingUp, color: "text-primary", bg: "bg-primary/10" },
-              { label: t("Revenue USD", "إيرادات بالدولار"), value: `$${stats.revenueUSD.toFixed(2)}`, icon: TrendingUp, color: "text-green-600", bg: "bg-green-100" },
+              { label: t("Revenue SSP", "إيرادات بالجنيه"), value: `SSP ${(stats.revenueSSP ?? 0).toLocaleString()}`, icon: TrendingUp, color: "text-primary", bg: "bg-primary/10" },
+              { label: t("Revenue USD", "إيرادات بالدولار"), value: `$${(stats.revenueUSD ?? 0).toFixed(2)}`, icon: TrendingUp, color: "text-green-600", bg: "bg-green-100" },
               { label: t("Total Orders", "إجمالي الطلبات"), value: stats.totalOrders, icon: ShoppingBag, color: "text-secondary", bg: "bg-secondary/10" },
               { label: t("Total Products", "إجمالي المنتجات"), value: stats.totalProducts, icon: BarChart3, color: "text-blue-600", bg: "bg-blue-100" },
             ].map((s, i) => {

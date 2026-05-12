@@ -7,6 +7,8 @@ import { CartProvider } from "@/contexts/CartContext";
 import { LangProvider } from "@/contexts/LangContext";
 
 import LandingPage from "@/pages/landing";
+import AboutPage from "@/pages/about";
+import ContactPage from "@/pages/contact";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import NotFound from "@/pages/not-found";
@@ -55,6 +57,8 @@ function AppRoutes() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
+      <Route path="/about" component={AboutPage} />
+      <Route path="/contact" component={ContactPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
 

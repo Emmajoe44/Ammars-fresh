@@ -1,37 +1,19 @@
 import { useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect } from "react";
 import { Leaf, ShoppingBasket, Tractor, LayoutDashboard, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { PublicNav } from "@/components/PublicNav";
+import { PublicFooter } from "@/components/PublicFooter";
 
 export default function LandingPage() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
 
-  useEffect(() => {
-    if (user) {
-      if (user.role === "retailer") setLocation("/retailer");
-      else if (user.role === "farmer") setLocation("/farmer");
-      else if (user.role === "admin") setLocation("/admin");
-    }
-  }, [user]);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex flex-col">
-      <header className="flex items-center justify-between px-6 py-5">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-md">
-            <Leaf className="w-5 h-5 text-white" />
-          </div>
-          <span className="font-extrabold text-xl text-foreground">AgriMarket</span>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => setLocation("/login")} data-testid="button-login-header">
-          Sign In
-        </Button>
-      </header>
+      <PublicNav />
 
-      <main className="flex-1 flex flex-col items-center justify-center px-6 text-center">
+      <main className="flex-1 flex flex-col items-center justify-center px-6 text-center py-16">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <div className="w-20 h-20 rounded-3xl bg-primary/15 flex items-center justify-center mx-auto mb-6 shadow-lg">
             <Leaf className="w-10 h-10 text-primary" />
@@ -104,10 +86,7 @@ export default function LandingPage() {
         </motion.div>
       </main>
 
-      <footer className="text-center py-6 text-xs text-muted-foreground">
-        <p>AgriMarket — Powering South Sudan's agricultural trade</p>
-        <p className="mt-1 font-arabic">سوق الزراعة — نحو جنوب السودان</p>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }

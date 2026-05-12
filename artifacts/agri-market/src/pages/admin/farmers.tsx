@@ -67,7 +67,7 @@ export default function AdminFarmers() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <button onClick={() => handleToggle(user.id, user.isActive)} className="p-2 rounded-lg hover:bg-muted transition-colors" data-testid={`button-toggle-${user.id}`}>
+                  <button onClick={() => handleToggle(user.id, user.isActive ?? false)} className="p-2 rounded-lg hover:bg-muted transition-colors" data-testid={`button-toggle-${user.id}`}>
                     {user.isActive ? <ToggleRight className="w-5 h-5 text-green-600" /> : <ToggleLeft className="w-5 h-5 text-muted-foreground" />}
                   </button>
                 </div>

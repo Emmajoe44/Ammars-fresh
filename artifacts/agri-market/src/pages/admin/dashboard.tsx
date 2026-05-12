@@ -15,7 +15,7 @@ export default function AdminDashboard() {
 
   const statCards = [
     { label: t("Total Orders", "إجمالي الطلبات"), value: stats?.totalOrders ?? 0, icon: ShoppingBag, color: "text-primary", bg: "bg-primary/10", href: "/admin/orders" },
-    { label: t("Revenue (SSP)", "الإيرادات"), value: stats ? `SSP ${stats.revenueSSP.toLocaleString()}` : "0", icon: TrendingUp, color: "text-green-600", bg: "bg-green-100", href: "/admin/analytics" },
+    { label: t("Revenue (SSP)", "الإيرادات"), value: stats ? `SSP ${(stats.revenueSSP ?? 0).toLocaleString()}` : "0", icon: TrendingUp, color: "text-green-600", bg: "bg-green-100", href: "/admin/analytics" },
     { label: t("Active Trucks", "شاحنات نشطة"), value: stats?.trucksActive ?? 0, icon: Truck, color: "text-blue-600", bg: "bg-blue-100", href: "/admin/trucks" },
     { label: t("Pending Orders", "طلبات معلقة"), value: stats?.pendingOrders ?? 0, icon: Clock, color: "text-yellow-600", bg: "bg-yellow-100", href: "/admin/orders" },
     { label: t("Delivered Today", "تسليم اليوم"), value: stats?.deliveredToday ?? 0, icon: CheckCircle, color: "text-green-600", bg: "bg-green-100", href: "/admin/orders" },

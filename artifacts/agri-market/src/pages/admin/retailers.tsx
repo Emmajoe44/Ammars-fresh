@@ -63,7 +63,7 @@ export default function AdminRetailers() {
                     <p className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="w-3 h-3" />{user.phone}</p>
                   </div>
                 </div>
-                <button onClick={() => handleToggle(user.id, user.isActive)} className="p-2 rounded-lg hover:bg-muted transition-colors flex-shrink-0" data-testid={`button-toggle-${user.id}`}>
+                <button onClick={() => handleToggle(user.id, user.isActive ?? false)} className="p-2 rounded-lg hover:bg-muted transition-colors flex-shrink-0" data-testid={`button-toggle-${user.id}`}>
                   {user.isActive ? <ToggleRight className="w-5 h-5 text-green-600" /> : <ToggleLeft className="w-5 h-5 text-muted-foreground" />}
                 </button>
               </motion.div>
