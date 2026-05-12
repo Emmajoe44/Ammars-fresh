@@ -154,7 +154,7 @@ export default function AdminDashboard() {
   ];
 
   const quickActions = [
-    { label: t("Add truck", "إضافة شاحنة"), icon: Plus, href: "/admin/trucks/add", tone: "bg-primary text-primary-foreground" },
+    { label: t("Add truck", "إضافة شاحنة"), icon: Plus, href: "/admin/trucks/new", tone: "bg-primary text-primary-foreground" },
     { label: t("Pricing rules", "قواعد التسعير"), icon: Tag, href: "/admin/pricing", tone: "bg-card border border-border text-foreground hover:bg-muted" },
     { label: t("Analytics", "التحليلات"), icon: BarChart3, href: "/admin/analytics", tone: "bg-card border border-border text-foreground hover:bg-muted" },
     { label: t("All orders", "كل الطلبات"), icon: Eye, href: "/admin/orders", tone: "bg-card border border-border text-foreground hover:bg-muted" },
