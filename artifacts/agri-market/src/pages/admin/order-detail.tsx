@@ -3,10 +3,12 @@ import { useLang } from "@/contexts/LangContext";
 import { useGetOrder, getGetOrderQueryKey, useListTrucks, getListTrucksQueryKey, useAssignTruckToOrder, useUpdateOrder } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppLayout } from "@/components/Layout";
+import { Receipt } from "@/components/Receipt";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Truck, MapPin, Package } from "lucide-react";
+import { Truck, MapPin, Package, Printer, FileText } from "lucide-react";
+import { useState } from "react";
 
 export default function AdminOrderDetail() {
   const { t } = useLang();
@@ -15,6 +17,7 @@ export default function AdminOrderDetail() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const [docType, setDocType] = useState<"receipt" | "invoice">("invoice");
   const { data: order, isLoading } = useGetOrder(id, { query: { enabled: !!id, queryKey: getGetOrderQueryKey(id) } });
   const { data: trucks } = useListTrucks({ query: { queryKey: getListTrucksQueryKey() } });
   const assignTruck = useAssignTruckToOrder();
@@ -43,10 +46,28 @@ export default function AdminOrderDetail() {
   if (isLoading) return <AppLayout><div className="p-6"><div className="h-64 bg-muted rounded-2xl animate-pulse" /></div></AppLayout>;
   if (!order) return <AppLayout><div className="p-6 text-center text-muted-foreground">Order not found</div></AppLayout>;
 
+  const print = (type: "receipt" | "invoice") => {
+    setDocType(type);
+    setTimeout(() => window.print(), 50);
+  };
+
   return (
     <AppLayout>
-      <div className="p-4 md:p-6 max-w-lg mx-auto">
-        <h1 className="text-2xl font-extrabold text-foreground mb-5">{t("Order", "طلب")} #{order.id}</h1>
+      <Receipt order={order} variant={docType} />
+      <div className="p-4 md:p-6 max-w-lg mx-auto no-print">
+        <div className="flex items-start justify-between gap-3 mb-5">
+          <h1 className="text-2xl font-extrabold text-foreground">{t("Order", "طلب")} #{order.id}</h1>
+          <div className="flex gap-2 shrink-0">
+            <Button size="sm" variant="outline" onClick={() => print("invoice")} data-testid="button-print-invoice">
+              <FileText className="w-4 h-4 mr-1" />
+              {t("Invoice", "فاتورة")}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => print("receipt")} data-testid="button-print-receipt">
+              <Printer className="w-4 h-4 mr-1" />
+              {t("Receipt", "إيصال")}
+            </Button>
+          </div>
+        </div>
 
         <div className="space-y-4">
           <div className="bg-card border border-border rounded-2xl p-4">

@@ -2,7 +2,9 @@ import { useRoute } from "wouter";
 import { useLang } from "@/contexts/LangContext";
 import { useGetOrder, getGetOrderQueryKey } from "@workspace/api-client-react";
 import { AppLayout } from "@/components/Layout";
-import { Package, Truck, Check, Clock, X, MapPin, RefreshCw } from "lucide-react";
+import { Receipt } from "@/components/Receipt";
+import { Button } from "@/components/ui/button";
+import { Package, Truck, Check, Clock, X, MapPin, RefreshCw, Printer } from "lucide-react";
 
 const steps = ["pending", "confirmed", "assigned", "in_transit", "delivered"];
 const stepIcons = [Clock, Check, Package, Truck, Check];
@@ -31,18 +33,25 @@ export default function RetailerOrderDetail() {
 
   return (
     <AppLayout>
-      <div className="p-4 md:p-6 pb-20 md:pb-8 max-w-lg mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-extrabold text-foreground">{t("Order", "طلب")} #{order.id}</h1>
-          <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
-            <span>{new Date(order.createdAt).toLocaleString()}</span>
-            {order.status !== "delivered" && order.status !== "cancelled" && (
-              <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold" title={`Updated ${new Date(dataUpdatedAt).toLocaleTimeString()}`}>
-                <RefreshCw className="w-3 h-3 animate-spin [animation-duration:3s]" />
-                {t("Live", "مباشر")}
-              </span>
-            )}
+      <Receipt order={order} variant="receipt" />
+      <div className="p-4 md:p-6 pb-20 md:pb-8 max-w-lg mx-auto no-print">
+        <div className="mb-6 flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-extrabold text-foreground">{t("Order", "طلب")} #{order.id}</h1>
+            <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
+              <span>{new Date(order.createdAt).toLocaleString()}</span>
+              {order.status !== "delivered" && order.status !== "cancelled" && (
+                <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold" title={`Updated ${new Date(dataUpdatedAt).toLocaleTimeString()}`}>
+                  <RefreshCw className="w-3 h-3 animate-spin [animation-duration:3s]" />
+                  {t("Live", "مباشر")}
+                </span>
+              )}
+            </div>
           </div>
+          <Button size="sm" variant="outline" onClick={() => window.print()} data-testid="button-print-receipt" className="shrink-0">
+            <Printer className="w-4 h-4 mr-1" />
+            {t("Print", "طباعة")}
+          </Button>
         </div>
 
         {/* Status tracker */}
