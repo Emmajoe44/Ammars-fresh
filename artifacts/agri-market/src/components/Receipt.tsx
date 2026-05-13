@@ -1,5 +1,3 @@
-import { Leaf } from "lucide-react";
-
 interface ReceiptItem {
   productName?: string | null;
   quantity: number;
@@ -32,79 +30,97 @@ export function Receipt({ order, variant = "receipt" }: ReceiptProps) {
   const fmt = (ssp: number, usd: number) =>
     useUSD ? `$${usd.toFixed(2)}` : `SSP ${ssp.toLocaleString()}`;
   const title = variant === "invoice" ? "INVOICE" : "RECEIPT";
+  const items = order.items ?? [];
+  const itemCount = items.reduce((n, i) => n + Number(i.quantity || 0), 0);
+  const total = useUSD ? (order.totalUSD ?? 0) : (order.totalSSP ?? 0);
 
   return (
-    <div className="print-only print-area bg-white text-black p-8 max-w-3xl mx-auto font-sans">
-      <div className="flex items-start justify-between border-b-2 border-black pb-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-black text-white flex items-center justify-center">
-            <Leaf className="w-7 h-7" />
-          </div>
+    <div className="print-only print-area bg-white text-black mx-auto" style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", maxWidth: "720px", padding: "0" }}>
+      {/* Letterhead */}
+      <div style={{ borderBottom: "3px double #000", paddingBottom: "12px", marginBottom: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <h1 className="text-2xl font-extrabold">AgriMarket South Sudan</h1>
-            <p className="text-xs text-gray-600">Farm to market — Juba, South Sudan</p>
-            <p className="text-xs text-gray-600">support@agrimarket.ss</p>
+            <div style={{ fontSize: "22px", fontWeight: 800, letterSpacing: "-0.5px" }}>AgriMarket</div>
+            <div style={{ fontSize: "10px", color: "#555", letterSpacing: "1px", textTransform: "uppercase", marginTop: "2px" }}>South Sudan · Farm to market</div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontSize: "18px", fontWeight: 700, letterSpacing: "3px" }}>{title}</div>
+            <div style={{ fontSize: "11px", color: "#555", marginTop: "2px" }}>
+              No. <span style={{ fontWeight: 700, color: "#000" }}>{String(order.id).padStart(6, "0")}</span>
+            </div>
+            <div style={{ fontSize: "11px", color: "#555" }}>
+              {new Date(order.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" })}
+              {" · "}
+              {new Date(order.createdAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+            </div>
           </div>
         </div>
-        <div className="text-right">
-          <h2 className="text-xl font-extrabold tracking-wider">{title}</h2>
-          <p className="text-sm font-semibold mt-1">#{order.id}</p>
-          <p className="text-xs text-gray-600">{new Date(order.createdAt).toLocaleString()}</p>
-        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
-        <div>
-          <p className="text-xs uppercase font-bold text-gray-500 mb-1">Bill to</p>
-          <p className="font-semibold">{order.retailerName || "Customer"}</p>
-          {order.deliveryLocation && <p className="text-gray-700">{order.deliveryLocation}</p>}
-        </div>
-        <div className="text-right">
-          <p className="text-xs uppercase font-bold text-gray-500 mb-1">Status</p>
-          <p className="font-semibold capitalize">{order.status.replace("_", " ")}</p>
-          {order.truckPlate && (
-            <p className="text-gray-700 mt-2 text-xs">
-              Truck: {order.truckPlate}
-              {order.driverName ? ` — ${order.driverName}` : ""}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <table className="w-full text-sm mb-6">
+      {/* Items table — the focus */}
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
         <thead>
-          <tr className="border-b-2 border-black text-left">
-            <th className="py-2 font-bold">Item</th>
-            <th className="py-2 font-bold text-right">Qty</th>
-            <th className="py-2 font-bold text-right">Unit price</th>
-            <th className="py-2 font-bold text-right">Subtotal</th>
+          <tr>
+            <th style={{ textAlign: "left", padding: "8px 6px", borderBottom: "2px solid #000", fontSize: "10px", letterSpacing: "1px", textTransform: "uppercase" }}>Description</th>
+            <th style={{ textAlign: "right", padding: "8px 6px", borderBottom: "2px solid #000", fontSize: "10px", letterSpacing: "1px", textTransform: "uppercase", width: "90px" }}>Qty</th>
+            <th style={{ textAlign: "right", padding: "8px 6px", borderBottom: "2px solid #000", fontSize: "10px", letterSpacing: "1px", textTransform: "uppercase", width: "110px" }}>Unit price</th>
+            <th style={{ textAlign: "right", padding: "8px 6px", borderBottom: "2px solid #000", fontSize: "10px", letterSpacing: "1px", textTransform: "uppercase", width: "120px" }}>Amount</th>
           </tr>
         </thead>
         <tbody>
-          {(order.items ?? []).map((item, i) => (
-            <tr key={i} className="border-b border-gray-300">
-              <td className="py-2">{item.productName || "—"}</td>
-              <td className="py-2 text-right">{item.quantity} {item.unit}</td>
-              <td className="py-2 text-right">{fmt(item.priceSSP, item.priceUSD)}</td>
-              <td className="py-2 text-right font-semibold">
-                {fmt(item.priceSSP * item.quantity, item.priceUSD * item.quantity)}
-              </td>
+          {items.map((item, i) => {
+            const unitPrice = useUSD ? item.priceUSD : item.priceSSP;
+            const lineTotal = unitPrice * Number(item.quantity || 0);
+            return (
+              <tr key={i}>
+                <td style={{ padding: "10px 6px", borderBottom: "1px solid #e5e5e5", verticalAlign: "top" }}>
+                  <div style={{ fontWeight: 600 }}>{item.productName || "Item"}</div>
+                </td>
+                <td style={{ padding: "10px 6px", borderBottom: "1px solid #e5e5e5", textAlign: "right", verticalAlign: "top", whiteSpace: "nowrap" }}>
+                  {Number(item.quantity).toLocaleString()} {item.unit || ""}
+                </td>
+                <td style={{ padding: "10px 6px", borderBottom: "1px solid #e5e5e5", textAlign: "right", verticalAlign: "top", whiteSpace: "nowrap" }}>
+                  {fmt(item.priceSSP, item.priceUSD)}
+                </td>
+                <td style={{ padding: "10px 6px", borderBottom: "1px solid #e5e5e5", textAlign: "right", verticalAlign: "top", whiteSpace: "nowrap", fontWeight: 600 }}>
+                  {fmt(item.priceSSP * Number(item.quantity || 0), item.priceUSD * Number(item.quantity || 0))}
+                </td>
+              </tr>
+            );
+          })}
+          {items.length === 0 && (
+            <tr>
+              <td colSpan={4} style={{ padding: "20px", textAlign: "center", color: "#888", fontStyle: "italic" }}>No items</td>
             </tr>
-          ))}
+          )}
         </tbody>
-        <tfoot>
-          <tr>
-            <td colSpan={3} className="py-3 text-right font-bold text-base">Total</td>
-            <td className="py-3 text-right font-extrabold text-lg">
-              {fmt(order.totalSSP ?? 0, order.totalUSD ?? 0)}
-            </td>
-          </tr>
-        </tfoot>
       </table>
 
-      <div className="border-t border-gray-300 pt-4 text-xs text-gray-600 text-center">
-        <p>Thank you for shopping with AgriMarket South Sudan.</p>
-        <p className="mt-1">This {variant} was generated on {new Date().toLocaleString()}.</p>
+      {/* Totals */}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "14px" }}>
+        <table style={{ fontSize: "12px", minWidth: "260px" }}>
+          <tbody>
+            <tr>
+              <td style={{ padding: "4px 8px", color: "#555" }}>Items</td>
+              <td style={{ padding: "4px 8px", textAlign: "right" }}>{items.length}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: "4px 8px", color: "#555" }}>Total quantity</td>
+              <td style={{ padding: "4px 8px", textAlign: "right" }}>{itemCount.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: "10px 8px", borderTop: "2px solid #000", fontSize: "13px", fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase" }}>Total</td>
+              <td style={{ padding: "10px 8px", borderTop: "2px solid #000", textAlign: "right", fontSize: "16px", fontWeight: 800 }}>
+                {fmt(order.totalSSP ?? total, order.totalUSD ?? total)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Footer */}
+      <div style={{ marginTop: "32px", paddingTop: "10px", borderTop: "1px solid #ccc", textAlign: "center", fontSize: "10px", color: "#666", letterSpacing: "0.5px" }}>
+        Thank you for your business · AgriMarket South Sudan
       </div>
     </div>
   );
