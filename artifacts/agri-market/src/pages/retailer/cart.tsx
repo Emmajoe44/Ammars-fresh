@@ -8,7 +8,7 @@ import { AppLayout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Minus, Plus, Trash2, ShoppingBasket, MapPin, Leaf } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBasket, MapPin, Leaf, Wallet, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { resolveImageSrc } from "@/lib/image-url";
 
@@ -67,17 +67,7 @@ export default function RetailerCart() {
   return (
     <AppLayout>
       <div className="p-4 md:p-6 pb-24 md:pb-8 max-w-lg mx-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-extrabold text-foreground">{t("Cart", "السلة")} ({count})</h1>
-          <div className="flex rounded-lg border border-border overflow-hidden">
-            {(["SSP", "USD"] as const).map(c => (
-              <button key={c} onClick={() => setCurrency(c)}
-                className={`px-3 py-1.5 text-xs font-semibold transition-colors ${currency === c ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted"}`}
-                data-testid={`button-currency-${c.toLowerCase()}`}
-              >{c}</button>
-            ))}
-          </div>
-        </div>
+        <h1 className="text-2xl font-extrabold text-foreground mb-4">{t("Cart", "السلة")} ({count})</h1>
 
         <div className="space-y-3 mb-6">
           <AnimatePresence>
@@ -132,14 +122,52 @@ export default function RetailerCart() {
           />
         </div>
 
+        {/* Pay with — currency selection */}
+        <div className="mb-4">
+          <label className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
+            <Wallet className="w-4 h-4 text-primary" />
+            {t("Pay with", "ادفع بـ")}
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            {([
+              { code: "SSP", label: t("South Sudanese Pound", "الجنيه السوداني الجنوبي"), amount: `SSP ${totalSSP.toLocaleString()}` },
+              { code: "USD", label: t("US Dollar", "الدولار الأمريكي"), amount: `$${totalUSD.toFixed(2)}` },
+            ] as const).map(opt => {
+              const selected = currency === opt.code;
+              return (
+                <button
+                  key={opt.code}
+                  type="button"
+                  onClick={() => setCurrency(opt.code)}
+                  data-testid={`button-pay-${opt.code.toLowerCase()}`}
+                  className={`relative text-left rounded-2xl border-2 p-3 transition-all ${selected ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/40"}`}
+                >
+                  {selected && (
+                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center">
+                      <Check className="w-3 h-3" />
+                    </div>
+                  )}
+                  <div className="text-xs text-muted-foreground font-medium">{opt.code}</div>
+                  <div className="text-[11px] text-muted-foreground/70 leading-tight mb-2">{opt.label}</div>
+                  <div className={`text-lg font-extrabold ${selected ? "text-primary" : "text-foreground"}`}>{opt.amount}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Total + Place Order */}
         <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">{t("Items", "المنتجات")}</span>
             <span className="font-medium">{count}</span>
           </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">{t("Currency", "العملة")}</span>
+            <span className="font-semibold">{currency}</span>
+          </div>
           <div className="flex justify-between font-bold text-lg border-t border-border pt-3">
-            <span>{t("Total", "الإجمالي")}</span>
+            <span>{t("You pay", "أنت تدفع")}</span>
             <span className="text-primary" data-testid="text-total">
               {currency === "SSP" ? `SSP ${totalSSP.toLocaleString()}` : `$${totalUSD.toFixed(2)}`}
             </span>
@@ -150,7 +178,9 @@ export default function RetailerCart() {
             disabled={createOrder.isPending || items.length === 0}
             data-testid="button-place-order"
           >
-            {createOrder.isPending ? t("Placing Order...", "جاري الطلب...") : t("Place Order", "تقديم الطلب")}
+            {createOrder.isPending
+              ? t("Placing Order...", "جاري الطلب...")
+              : t(`Pay ${currency === "SSP" ? `SSP ${totalSSP.toLocaleString()}` : `$${totalUSD.toFixed(2)}`} & Place Order`, `ادفع وقدم الطلب`)}
           </Button>
         </div>
       </div>
