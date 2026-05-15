@@ -79,7 +79,9 @@ export default function AdminMore() {
 
         <Text style={[styles.section, { color: colors.mutedForeground }]}>Operations</Text>
         <Card padded={false} style={{ marginBottom: 16 }}>
-          <Row icon="dollar-sign" label="Pricing rules" description="Set min/max prices per category" onPress={() => router.push("/(admin)/pricing")} />
+          <Row icon="package" label="All products" description="Browse, toggle and remove listings" onPress={() => router.push("/(admin)/products")} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          <Row icon="dollar-sign" label="Pricing rules" description="Set min/max prices per category" onPress={() => router.push("/(admin)/pricing")} tint={colors.info} />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <Row icon="bar-chart-2" label="Demand analytics" description="Order trends and category breakdown" onPress={() => router.push("/(admin)/analytics")} tint={colors.secondary} />
         </Card>

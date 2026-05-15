@@ -110,6 +110,7 @@ function ClassicTabLayout() {
       <Tabs.Screen name="pricing" options={{ href: null }} />
       <Tabs.Screen name="analytics" options={{ href: null }} />
       <Tabs.Screen name="order-detail" options={{ href: null }} />
+      <Tabs.Screen name="products" options={{ href: null }} />
     </Tabs>
   );
 }
