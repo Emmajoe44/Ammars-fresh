@@ -1,5 +1,5 @@
 import { db, usersTable } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import crypto from "crypto";
 import { logger } from "./logger";
 
@@ -59,49 +59,59 @@ const DEMO_USERS = [
 
 export async function bootstrapDemoData(): Promise<void> {
   try {
-    const [{ count }] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(usersTable);
+    let seeded = 0;
+    let healed = 0;
+    let restored = 0;
 
-    if (Number(count) > 0) {
-      // Self-heal: re-hash demo accounts that still use the legacy salt.
-      let healed = 0;
-      for (const u of DEMO_USERS) {
-        const [existing] = await db
-          .select({ id: usersTable.id, passwordHash: usersTable.passwordHash })
-          .from(usersTable)
-          .where(eq(usersTable.phone, u.phone));
-        if (existing && existing.passwordHash === legacyHashPassword(u.password)) {
-          await db
-            .update(usersTable)
-            .set({ passwordHash: hashPassword(u.password) })
-            .where(eq(usersTable.id, existing.id));
-          healed++;
-        }
+    for (const u of DEMO_USERS) {
+      const [existing] = await db
+        .select({
+          id: usersTable.id,
+          passwordHash: usersTable.passwordHash,
+          role: usersTable.role,
+          name: usersTable.name,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.phone, u.phone));
+
+      if (!existing) {
+        await db.insert(usersTable).values({
+          name: u.name,
+          phone: u.phone,
+          email: null,
+          passwordHash: hashPassword(u.password),
+          role: u.role,
+          farmName: u.farmName ?? null,
+          location: u.location ?? null,
+          language: "en" as const,
+          currency: "SSP" as const,
+          isActive: true,
+          avatarUrl: null,
+        });
+        seeded++;
+        continue;
       }
-      if (healed > 0) logger.info({ healed }, "Re-hashed demo accounts to new salt");
-      return;
+
+      const updates: Partial<typeof usersTable.$inferInsert> = {};
+      if (existing.passwordHash === legacyHashPassword(u.password)) {
+        updates.passwordHash = hashPassword(u.password);
+        healed++;
+      }
+      if (existing.role !== u.role || existing.name !== u.name) {
+        updates.role = u.role;
+        updates.name = u.name;
+        if (u.farmName) updates.farmName = u.farmName;
+        if (u.location) updates.location = u.location;
+        restored++;
+      }
+      if (Object.keys(updates).length > 0) {
+        await db.update(usersTable).set(updates).where(eq(usersTable.id, existing.id));
+      }
     }
 
-    logger.info("Empty users table detected — seeding demo accounts");
-
-    await db.insert(usersTable).values(
-      DEMO_USERS.map((u) => ({
-        name: u.name,
-        phone: u.phone,
-        email: null,
-        passwordHash: hashPassword(u.password),
-        role: u.role,
-        farmName: u.farmName ?? null,
-        location: u.location ?? null,
-        language: "en" as const,
-        currency: "SSP" as const,
-        isActive: true,
-        avatarUrl: null,
-      })),
-    );
-
-    logger.info({ seeded: DEMO_USERS.length }, "Demo accounts seeded");
+    if (seeded > 0 || healed > 0 || restored > 0) {
+      logger.info({ seeded, healed, restored }, "Demo accounts ensured");
+    }
   } catch (err) {
     logger.error({ err }, "Failed to bootstrap demo data");
   }
