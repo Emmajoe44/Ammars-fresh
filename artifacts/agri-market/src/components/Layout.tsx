@@ -60,7 +60,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen bg-background" dir={lang === "ar" ? "rtl" : "ltr"}>
       {/* Top nav */}
-      <header className="sticky top-0 z-30 bg-sidebar text-sidebar-foreground border-b border-sidebar-border">
+      <header className="no-print sticky top-0 z-30 bg-sidebar text-sidebar-foreground border-b border-sidebar-border">
         <div className="flex items-center justify-between gap-4 px-4 sm:px-6 py-3">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center">
