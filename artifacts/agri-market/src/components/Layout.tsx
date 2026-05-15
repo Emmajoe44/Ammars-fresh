@@ -35,6 +35,7 @@ const adminNav: NavItem[] = [
   { label: "Pricing", labelAr: "التسعير", icon: Tag, href: "/admin/pricing" },
   { label: "Farmers", labelAr: "المزارعون", icon: Leaf, href: "/admin/farmers" },
   { label: "Retailers", labelAr: "التجار", icon: Users, href: "/admin/retailers" },
+  { label: "Profile", labelAr: "الملف", icon: User, href: "/admin/profile" },
 ];
 
 function navForRole(role: string) {

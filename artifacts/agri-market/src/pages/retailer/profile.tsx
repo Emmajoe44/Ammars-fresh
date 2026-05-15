@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { User, MapPin, Globe, DollarSign, Phone } from "lucide-react";
+import { AccountSettings, ProfileAvatar } from "@/components/AccountSettings";
 
 export default function RetailerProfile() {
   const { user, updateUser } = useAuth();
@@ -42,9 +43,7 @@ export default function RetailerProfile() {
     <AppLayout>
       <div className="p-4 md:p-6 pb-20 md:pb-8 max-w-lg mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <User className="w-8 h-8 text-primary" />
-          </div>
+          <ProfileAvatar avatarUrl={me?.avatarUrl} fallbackIcon={<User className="w-8 h-8 text-primary" />} />
           <div>
             <h1 className="text-xl font-extrabold text-foreground">{me?.name}</h1>
             <p className="text-sm text-muted-foreground capitalize">{me?.role}</p>
@@ -104,6 +103,9 @@ export default function RetailerProfile() {
           </Form>
         </div>
 
+        <div className="mt-6">
+          <AccountSettings />
+        </div>
       </div>
     </AppLayout>
   );

@@ -10,6 +10,7 @@ export * from "./adminStats";
 export * from "./authResponse";
 export * from "./category";
 export * from "./categoryInput";
+export * from "./changePasswordInput";
 export * from "./demandDataPoint";
 export * from "./errorEnvelope";
 export * from "./farmerStats";

@@ -72,6 +72,7 @@ export async function bootstrapDemoData(): Promise<void> {
         language: "en" as const,
         currency: "SSP" as const,
         isActive: true,
+        avatarUrl: null,
       })),
     );
 

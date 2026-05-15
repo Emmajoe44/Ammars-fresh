@@ -24,4 +24,6 @@ export interface UserUpdate {
   language?: UserUpdateLanguage;
   currency?: UserUpdateCurrency;
   isActive?: boolean;
+  /** @nullable */
+  avatarUrl?: string | null;
 }

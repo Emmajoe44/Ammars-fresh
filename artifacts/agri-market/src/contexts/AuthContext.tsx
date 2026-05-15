@@ -11,6 +11,7 @@ interface AuthUser {
   language: "en" | "ar";
   currency: "SSP" | "USD";
   isActive: boolean;
+  avatarUrl?: string | null;
 }
 
 interface AuthContextType {

@@ -20,6 +20,7 @@ function formatUser(user: typeof usersTable.$inferSelect) {
     language: user.language,
     currency: user.currency,
     isActive: user.isActive,
+    avatarUrl: user.avatarUrl,
     createdAt: user.createdAt.toISOString(),
   };
 }

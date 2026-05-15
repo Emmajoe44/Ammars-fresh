@@ -10,13 +10,20 @@ import { StatCard } from "@/components/StatCard";
 import { InfoRow, Pill, PJS, SectionLabel } from "@/components/ui";
 import { useAuth } from "@/contexts/AuthContext";
 import { useColors } from "@/hooks/useColors";
-import { useFormatRevenue } from "@/hooks/useFormatRevenue";
+
+function formatMoney(amount: number, currency: "SSP" | "USD"): string {
+  if (currency === "USD") {
+    return `$${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  }
+  if (amount >= 1_000_000) return `${(amount / 1_000_000).toFixed(1)}M SSP`;
+  if (amount >= 1_000) return `${(amount / 1_000).toFixed(1)}K SSP`;
+  return `${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })} SSP`;
+}
 
 export default function AdminDashboard() {
   const colors = useColors();
   const router = useRouter();
   const { user } = useAuth();
-  const formatRevenue = useFormatRevenue();
 
   const { data: stats, isLoading, refetch, isRefetching } = useGetAdminStats();
 
@@ -41,16 +48,20 @@ export default function AdminDashboard() {
         ) : (
           <>
             <View style={styles.statsRow}>
-              <StatCard label="Total revenue" value={stats ? formatRevenue(stats.revenueSSP, stats.revenueUSD) : "—"} icon="trending-up" tone="primary" variant="gradient" hint="Today" />
-              <StatCard label="Total orders" value={stats?.totalOrders ?? 0} icon="shopping-bag" tone="secondary" variant="gradient" hint="All time" />
+              <StatCard label="Revenue (SSP)" value={stats ? formatMoney(stats.revenueSSP ?? 0, "SSP") : "—"} icon="trending-up" tone="primary" variant="gradient" hint="All time" />
+              <StatCard label="Revenue (USD)" value={stats ? formatMoney(stats.revenueUSD ?? 0, "USD") : "—"} icon="dollar-sign" tone="secondary" variant="gradient" hint="All time" />
             </View>
             <View style={styles.statsRow}>
+              <StatCard label="Total orders" value={stats?.totalOrders ?? 0} icon="shopping-bag" tone="primary" onPress={() => router.push("/(admin)/orders")} />
               <StatCard label="Pending" value={stats?.pendingOrders ?? 0} icon="clock" tone="warning" onPress={() => router.push("/(admin)/orders")} />
-              <StatCard label="Active" value={stats?.activeOrders ?? 0} icon="navigation" tone="info" onPress={() => router.push("/(admin)/orders")} />
             </View>
             <View style={styles.statsRow}>
+              <StatCard label="Active" value={stats?.activeOrders ?? 0} icon="navigation" tone="info" onPress={() => router.push("/(admin)/orders")} />
               <StatCard label="Farmers" value={stats?.totalFarmers ?? 0} icon="sun" tone="success" onPress={() => router.push("/(admin)/users")} />
+            </View>
+            <View style={styles.statsRow}>
               <StatCard label="Retailers" value={stats?.totalRetailers ?? 0} icon="users" tone="info" onPress={() => router.push("/(admin)/users")} />
+              <StatCard label="Products" value={stats?.totalProducts ?? 0} icon="package" tone="primary" onPress={() => router.push("/(admin)/products")} />
             </View>
 
             {(stats?.lowStockCount ?? 0) > 0 && (

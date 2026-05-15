@@ -85,6 +85,8 @@ export interface User {
   language: UserLanguage;
   currency?: UserCurrency;
   isActive?: boolean;
+  /** @nullable */
+  avatarUrl?: string | null;
   createdAt: string;
 }
 
@@ -125,6 +127,14 @@ export interface UserUpdate {
   language?: UserUpdateLanguage;
   currency?: UserUpdateCurrency;
   isActive?: boolean;
+  /** @nullable */
+  avatarUrl?: string | null;
+}
+
+export interface ChangePasswordInput {
+  currentPassword: string;
+  /** @minLength 6 */
+  newPassword: string;
 }
 
 export interface UserListResponse {

@@ -37,8 +37,19 @@ export const LoginResponse = zod.object({
     language: zod.enum(["en", "ar"]),
     currency: zod.enum(["SSP", "USD"]).optional(),
     isActive: zod.boolean().optional(),
+    avatarUrl: zod.string().nullish(),
     createdAt: zod.string(),
   }),
+});
+
+/**
+ * @summary Change current user password
+ */
+export const changePasswordBodyNewPasswordMin = 6;
+
+export const ChangePasswordBody = zod.object({
+  currentPassword: zod.string(),
+  newPassword: zod.string().min(changePasswordBodyNewPasswordMin),
 });
 
 /**
@@ -81,6 +92,7 @@ export const ListUsersResponse = zod.object({
       language: zod.enum(["en", "ar"]),
       currency: zod.enum(["SSP", "USD"]).optional(),
       isActive: zod.boolean().optional(),
+      avatarUrl: zod.string().nullish(),
       createdAt: zod.string(),
     }),
   ),
@@ -103,6 +115,7 @@ export const GetMeResponse = zod.object({
   language: zod.enum(["en", "ar"]),
   currency: zod.enum(["SSP", "USD"]).optional(),
   isActive: zod.boolean().optional(),
+  avatarUrl: zod.string().nullish(),
   createdAt: zod.string(),
 });
 
@@ -120,6 +133,7 @@ export const UpdateMeBody = zod.object({
   language: zod.enum(["en", "ar"]).optional(),
   currency: zod.enum(["SSP", "USD"]).optional(),
   isActive: zod.boolean().optional(),
+  avatarUrl: zod.string().nullish(),
 });
 
 export const UpdateMeResponse = zod.object({
@@ -135,6 +149,7 @@ export const UpdateMeResponse = zod.object({
   language: zod.enum(["en", "ar"]),
   currency: zod.enum(["SSP", "USD"]).optional(),
   isActive: zod.boolean().optional(),
+  avatarUrl: zod.string().nullish(),
   createdAt: zod.string(),
 });
 
@@ -158,6 +173,7 @@ export const GetUserResponse = zod.object({
   language: zod.enum(["en", "ar"]),
   currency: zod.enum(["SSP", "USD"]).optional(),
   isActive: zod.boolean().optional(),
+  avatarUrl: zod.string().nullish(),
   createdAt: zod.string(),
 });
 
@@ -179,6 +195,7 @@ export const UpdateUserBody = zod.object({
   language: zod.enum(["en", "ar"]).optional(),
   currency: zod.enum(["SSP", "USD"]).optional(),
   isActive: zod.boolean().optional(),
+  avatarUrl: zod.string().nullish(),
 });
 
 export const UpdateUserResponse = zod.object({
@@ -194,6 +211,7 @@ export const UpdateUserResponse = zod.object({
   language: zod.enum(["en", "ar"]),
   currency: zod.enum(["SSP", "USD"]).optional(),
   isActive: zod.boolean().optional(),
+  avatarUrl: zod.string().nullish(),
   createdAt: zod.string(),
 });
 

@@ -61,6 +61,25 @@ paths:
         "401":
           description: Invalid credentials
 
+  /auth/change-password:
+    post:
+      operationId: changePassword
+      tags: [auth]
+      summary: Change current user password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordInput"
+      responses:
+        "204":
+          description: Password changed
+        "400":
+          description: Invalid input
+        "401":
+          description: Current password incorrect
+
   /auth/register:
     post:
       operationId: register
@@ -824,6 +843,8 @@ components:
           enum: [SSP, USD]
         isActive:
           type: boolean
+        avatarUrl:
+          type: ["string", "null"]
         createdAt:
           type: string
 
@@ -852,6 +873,18 @@ components:
           enum: [SSP, USD]
         isActive:
           type: boolean
+        avatarUrl:
+          type: ["string", "null"]
+
+    ChangePasswordInput:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+          minLength: 6
 
     UserListResponse:
       type: object

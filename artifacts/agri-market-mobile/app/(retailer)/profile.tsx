@@ -1,13 +1,23 @@
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { AccountSecurity } from "@/components/AccountSecurity";
 import { Card } from "@/components/Card";
 import { Header } from "@/components/Header";
 import { InfoRow, Pill, PJS, PrimaryButton, SectionLabel } from "@/components/ui";
 import { useAuth } from "@/contexts/AuthContext";
 import { useColors } from "@/hooks/useColors";
+
+function resolveAvatarSrc(value?: string | null): string | null {
+  if (!value) return null;
+  if (value.startsWith("/objects/")) {
+    const base = process.env.EXPO_PUBLIC_DOMAIN ? `https://${process.env.EXPO_PUBLIC_DOMAIN}` : "";
+    return `${base}/api/storage${value}`;
+  }
+  return value;
+}
 
 export default function RetailerProfile() {
   const colors = useColors();
@@ -39,8 +49,12 @@ export default function RetailerProfile() {
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
         <Card>
           <View style={styles.avatarRow}>
-            <View style={[styles.avatar, { backgroundColor: colors.primary + "1A" }]}>
-              <Text style={[styles.avatarTxt, { color: colors.primary, fontFamily: PJS.black }]}>{initials}</Text>
+            <View style={[styles.avatar, { backgroundColor: colors.primary + "1A", borderColor: colors.border }]}>
+              {resolveAvatarSrc(user?.avatarUrl) ? (
+                <Image source={{ uri: resolveAvatarSrc(user?.avatarUrl)! }} style={styles.avatarImg} resizeMode="cover" />
+              ) : (
+                <Text style={[styles.avatarTxt, { color: colors.primary, fontFamily: PJS.black }]}>{initials}</Text>
+              )}
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[styles.name, { color: colors.foreground, fontFamily: PJS.bold }]}>{user?.name ?? "Retailer"}</Text>
@@ -87,6 +101,8 @@ export default function RetailerProfile() {
           ) : null}
         </Card>
 
+        <AccountSecurity />
+
         <View style={{ marginTop: 16 }}>
           <PrimaryButton label="Sign out" icon="log-out" variant="danger" trailingIcon={null} onPress={handleSignOut} />
         </View>
@@ -97,7 +113,8 @@ export default function RetailerProfile() {
 
 const styles = StyleSheet.create({
   avatarRow: { flexDirection: "row", alignItems: "center", gap: 14 },
-  avatar: { width: 60, height: 60, borderRadius: 18, alignItems: "center", justifyContent: "center" },
+  avatar: { width: 60, height: 60, borderRadius: 18, alignItems: "center", justifyContent: "center", overflow: "hidden", borderWidth: StyleSheet.hairlineWidth },
+  avatarImg: { width: "100%", height: "100%" },
   avatarTxt: { fontSize: 22 },
   name: { fontSize: 18 },
   phone: { fontSize: 13, marginTop: 2 },

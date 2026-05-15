@@ -12,6 +12,7 @@ export interface AuthUser {
   language: "en" | "ar";
   farmName: string | null;
   location: string | null;
+  avatarUrl?: string | null;
 }
 
 interface AuthContextType {

@@ -1,13 +1,33 @@
 import { Router } from "express";
 import { db, usersTable } from "@workspace/db";
 import { eq, or } from "drizzle-orm";
-import { LoginBody, RegisterBody } from "@workspace/api-zod";
+import { LoginBody, RegisterBody, ChangePasswordBody } from "@workspace/api-zod";
 import crypto from "crypto";
+import { authMiddleware } from "../lib/auth";
 
 const router = Router();
 
 function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password + "agrimarket_salt").digest("hex");
+}
+
+function userResponse(user: typeof usersTable.$inferSelect) {
+  return {
+    id: user.id,
+    name: user.name,
+    phone: user.phone,
+    email: user.email,
+    role: user.role,
+    farmName: user.farmName,
+    location: user.location,
+    locationLat: user.locationLat,
+    locationLng: user.locationLng,
+    language: user.language,
+    currency: user.currency,
+    isActive: user.isActive,
+    avatarUrl: user.avatarUrl,
+    createdAt: user.createdAt.toISOString(),
+  };
 }
 
 function makeToken(userId: number, role: string): string {
@@ -35,24 +55,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     return;
   }
   const token = makeToken(user.id, user.role);
-  res.json({
-    token,
-    user: {
-      id: user.id,
-      name: user.name,
-      phone: user.phone,
-      email: user.email,
-      role: user.role,
-      farmName: user.farmName,
-      location: user.location,
-      locationLat: user.locationLat,
-      locationLng: user.locationLng,
-      language: user.language,
-      currency: user.currency,
-      isActive: user.isActive,
-      createdAt: user.createdAt.toISOString(),
-    },
-  });
+  res.json({ token, user: userResponse(user) });
 });
 
 router.post("/auth/register", async (req, res): Promise<void> => {
@@ -93,24 +96,28 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     isActive: true,
   }).returning();
   const token = makeToken(user.id, user.role);
-  res.status(201).json({
-    token,
-    user: {
-      id: user.id,
-      name: user.name,
-      phone: user.phone,
-      email: user.email,
-      role: user.role,
-      farmName: user.farmName,
-      location: user.location,
-      locationLat: user.locationLat,
-      locationLng: user.locationLng,
-      language: user.language,
-      currency: user.currency,
-      isActive: user.isActive,
-      createdAt: user.createdAt.toISOString(),
-    },
-  });
+  res.status(201).json({ token, user: userResponse(user) });
+});
+
+router.post("/auth/change-password", authMiddleware, async (req, res): Promise<void> => {
+  const parsed = ChangePasswordBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid input" });
+    return;
+  }
+  const { currentPassword, newPassword } = parsed.data;
+  const userId = req.authUser!.userId;
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
+  if (!user || user.passwordHash !== hashPassword(currentPassword)) {
+    res.status(401).json({ error: "Current password is incorrect" });
+    return;
+  }
+  if (newPassword.length < 6) {
+    res.status(400).json({ error: "New password must be at least 6 characters" });
+    return;
+  }
+  await db.update(usersTable).set({ passwordHash: hashPassword(newPassword) }).where(eq(usersTable.id, userId));
+  res.status(204).send();
 });
 
 export default router;

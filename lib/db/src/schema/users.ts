@@ -20,6 +20,7 @@ export const usersTable = pgTable("users", {
   language: languageEnum("language").notNull().default("en"),
   currency: currencyEnum("currency").notNull().default("SSP"),
   isActive: boolean("is_active").notNull().default(true),
+  avatarUrl: text("avatar_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

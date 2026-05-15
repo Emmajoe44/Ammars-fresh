@@ -9,11 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Tractor, MapPin, Globe, DollarSign, Phone } from "lucide-react";
+import { Shield, MapPin, Globe, Phone } from "lucide-react";
 import { AccountSettings, ProfileAvatar } from "@/components/AccountSettings";
 
-export default function FarmerProfile() {
-  const { user, updateUser } = useAuth();
+export default function AdminProfile() {
+  const { updateUser } = useAuth();
   const { t, lang, setLang } = useLang();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -21,7 +21,12 @@ export default function FarmerProfile() {
   const updateMe = useUpdateMe();
 
   const form = useForm({
-    values: { name: me?.name ?? "", phone: me?.phone ?? "", farmName: me?.farmName ?? "", location: me?.location ?? "", currency: me?.currency ?? "SSP", language: me?.language ?? "en" },
+    values: {
+      name: me?.name ?? "",
+      phone: me?.phone ?? "",
+      location: me?.location ?? "",
+      language: me?.language ?? "en",
+    },
   });
 
   const onSubmit = (values: any) => {
@@ -43,14 +48,15 @@ export default function FarmerProfile() {
     <AppLayout>
       <div className="p-4 md:p-6 pb-20 md:pb-8 max-w-lg mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          <ProfileAvatar avatarUrl={me?.avatarUrl} fallbackIcon={<Tractor className="w-8 h-8 text-primary" />} />
+          <ProfileAvatar avatarUrl={me?.avatarUrl} fallbackIcon={<Shield className="w-8 h-8 text-primary" />} />
           <div>
             <h1 className="text-xl font-extrabold text-foreground">{me?.name}</h1>
-            <p className="text-sm text-muted-foreground">{me?.farmName}</p>
+            <p className="text-sm text-muted-foreground capitalize">{t("Administrator", "مشرف")}</p>
           </div>
         </div>
 
         <div className="bg-card border border-border rounded-2xl p-5">
+          <h2 className="font-bold text-foreground mb-4">{t("Edit Profile", "تعديل الملف")}</h2>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField control={form.control} name="name" render={({ field }) => (
@@ -62,25 +68,10 @@ export default function FarmerProfile() {
                   <FormControl><Input type="tel" inputMode="tel" placeholder="+211 9XX XXX XXX" data-testid="input-phone" {...field} /></FormControl>
                 </FormItem>
               )} />
-              <FormField control={form.control} name="farmName" render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-1.5"><Tractor className="w-3.5 h-3.5" />{t("Farm name", "اسم المزرعة")}</FormLabel>
-                  <FormControl><Input data-testid="input-farmname" {...field} /></FormControl>
-                </FormItem>
-              )} />
               <FormField control={form.control} name="location" render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" />{t("Farm location", "موقع المزرعة")}</FormLabel>
+                  <FormLabel className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" />{t("Location", "الموقع")}</FormLabel>
                   <FormControl><Input data-testid="input-location" {...field} /></FormControl>
-                </FormItem>
-              )} />
-              <FormField control={form.control} name="currency" render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-1.5"><DollarSign className="w-3.5 h-3.5" />{t("Currency", "العملة")}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                    <SelectContent><SelectItem value="SSP">SSP (South Sudanese Pound)</SelectItem><SelectItem value="USD">USD (US Dollar)</SelectItem></SelectContent>
-                  </Select>
                 </FormItem>
               )} />
               <FormField control={form.control} name="language" render={({ field }) => (

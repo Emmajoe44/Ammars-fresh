@@ -27,5 +27,7 @@ export interface User {
   language: UserLanguage;
   currency?: UserCurrency;
   isActive?: boolean;
+  /** @nullable */
+  avatarUrl?: string | null;
   createdAt: string;
 }
