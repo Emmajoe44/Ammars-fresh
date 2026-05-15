@@ -4,7 +4,8 @@ import { useGetOrder, getGetOrderQueryKey } from "@workspace/api-client-react";
 import { AppLayout } from "@/components/Layout";
 import { Receipt } from "@/components/Receipt";
 import { Button } from "@/components/ui/button";
-import { Package, Truck, Check, Clock, X, MapPin, RefreshCw, Printer } from "lucide-react";
+import { useState } from "react";
+import { Package, Truck, Check, Clock, X, MapPin, RefreshCw, Printer, FileText } from "lucide-react";
 
 const steps = ["pending", "confirmed", "assigned", "in_transit", "delivered"];
 const stepIcons = [Clock, Check, Package, Truck, Check];
@@ -13,6 +14,7 @@ export default function RetailerOrderDetail() {
   const { t } = useLang();
   const [, params] = useRoute("/retailer/orders/:id");
   const id = parseInt(params?.id ?? "0");
+  const [docType, setDocType] = useState<"proforma" | "quotation">("proforma");
   const { data: order, isLoading, dataUpdatedAt } = useGetOrder(id, {
     query: {
       enabled: !!id,
@@ -33,7 +35,7 @@ export default function RetailerOrderDetail() {
 
   return (
     <AppLayout>
-      <Receipt order={order} variant="receipt" />
+      <Receipt order={order} variant={docType} />
       <div className="p-4 md:p-6 pb-20 md:pb-8 max-w-lg mx-auto no-print">
         <div className="mb-6 flex items-start justify-between gap-3">
           <div>
@@ -48,10 +50,26 @@ export default function RetailerOrderDetail() {
               )}
             </div>
           </div>
-          <Button size="sm" variant="outline" onClick={() => window.print()} data-testid="button-print-receipt" className="shrink-0">
-            <Printer className="w-4 h-4 mr-1" />
-            {t("Print", "طباعة")}
-          </Button>
+          <div className="flex gap-2 shrink-0">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => { setDocType("quotation"); setTimeout(() => window.print(), 50); }}
+              data-testid="button-print-quotation"
+            >
+              <FileText className="w-4 h-4 mr-1" />
+              {t("Quotation", "عرض سعر")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => { setDocType("proforma"); setTimeout(() => window.print(), 50); }}
+              data-testid="button-print-proforma"
+            >
+              <Printer className="w-4 h-4 mr-1" />
+              {t("Proforma", "فاتورة مبدئية")}
+            </Button>
+          </div>
         </div>
 
         {/* Status tracker */}

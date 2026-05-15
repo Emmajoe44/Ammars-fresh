@@ -22,7 +22,7 @@ interface ReceiptOrder {
 
 interface ReceiptProps {
   order: ReceiptOrder;
-  variant?: "receipt" | "invoice";
+  variant?: "receipt" | "invoice" | "proforma" | "quotation";
 }
 
 const BRAND = "#15803d";
@@ -36,15 +36,25 @@ export function Receipt({ order, variant = "receipt" }: ReceiptProps) {
   const useUSD = order.currency === "USD";
   const fmt = (ssp: number, usd: number) =>
     useUSD ? `$${usd.toFixed(2)}` : `SSP ${ssp.toLocaleString()}`;
-  const isInvoice = variant === "invoice";
-  const title = isInvoice ? "INVOICE" : "RECEIPT";
+  const isReceipt = variant === "receipt";
+  const isProforma = variant === "proforma";
+  const isQuotation = variant === "quotation";
+  const isInvoice = !isReceipt;
+  const title = isQuotation
+    ? "QUOTATION"
+    : isProforma
+      ? "PROFORMA INVOICE"
+      : isReceipt
+        ? "RECEIPT"
+        : "INVOICE";
+  const docPrefix = isQuotation ? "QUO" : isProforma ? "PRO" : isReceipt ? "RCP" : "INV";
   const items = order.items ?? [];
   const itemCount = items.reduce((n, i) => n + Number(i.quantity || 0), 0);
   const subtotal = useUSD
     ? items.reduce((s, i) => s + i.priceUSD * Number(i.quantity || 0), 0)
     : items.reduce((s, i) => s + i.priceSSP * Number(i.quantity || 0), 0);
   const total = useUSD ? (order.totalUSD ?? subtotal) : (order.totalSSP ?? subtotal);
-  const docNumber = `${isInvoice ? "INV" : "RCP"}-${new Date(order.createdAt).getFullYear()}-${String(order.id).padStart(6, "0")}`;
+  const docNumber = `${docPrefix}-${new Date(order.createdAt).getFullYear()}-${String(order.id).padStart(6, "0")}`;
   const dateStr = new Date(order.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "2-digit" });
   const timeStr = new Date(order.createdAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
 
@@ -255,7 +265,7 @@ export function Receipt({ order, variant = "receipt" }: ReceiptProps) {
         </div>
 
         {/* Status badge */}
-        {!isInvoice && (
+        {isReceipt && (
           <div style={{ marginTop: "24px", textAlign: "center" }}>
             <div
               style={{
@@ -275,15 +285,39 @@ export function Receipt({ order, variant = "receipt" }: ReceiptProps) {
             </div>
           </div>
         )}
+        {(isProforma || isQuotation) && (
+          <div style={{ marginTop: "24px", textAlign: "center" }}>
+            <div
+              style={{
+                display: "inline-block",
+                border: `2px solid ${ACCENT}`,
+                color: ACCENT,
+                padding: "8px 24px",
+                borderRadius: "999px",
+                fontWeight: 800,
+                letterSpacing: "3px",
+                fontSize: "11px",
+                textTransform: "uppercase",
+                transform: "rotate(-2deg)",
+              }}
+            >
+              {isQuotation ? "Quotation · Not a tax invoice" : "Proforma · Not a tax invoice"}
+            </div>
+          </div>
+        )}
 
         {/* Notes / terms */}
         <div style={{ marginTop: "28px", padding: "14px 16px", background: "#f8fafc", borderLeft: `3px solid ${ACCENT}`, fontSize: "10.5px", color: MUTED, lineHeight: 1.6 }}>
           <div style={{ fontWeight: 700, color: INK, marginBottom: "4px", letterSpacing: "0.5px", textTransform: "uppercase", fontSize: "9px" }}>
-            {isInvoice ? "Payment terms" : "Terms"}
+            {isReceipt ? "Terms" : isQuotation ? "Quotation terms" : isProforma ? "Proforma terms" : "Payment terms"}
           </div>
-          {isInvoice
-            ? "Payment due within 7 days of issue. Goods remain the property of AgriMarket South Sudan until paid in full. For questions about this invoice, contact billing@agrimarket.ss."
-            : "This receipt confirms payment for the items listed above. Please retain it for your records. For returns or questions, contact support@agrimarket.ss within 48 hours."}
+          {isReceipt
+            ? "This receipt confirms payment for the items listed above. Please retain it for your records. For returns or questions, contact support@agrimarket.ss within 48 hours."
+            : isQuotation
+              ? "This quotation is valid for 14 days from the date of issue. Prices and availability are indicative and subject to confirmation. This document is not a demand for payment. For questions, contact sales@agrimarket.ss."
+              : isProforma
+                ? "This proforma invoice is provided for planning purposes only and does not constitute a tax invoice or a confirmation of payment. Final pricing is confirmed upon order acceptance by AgriMarket South Sudan. For questions, contact sales@agrimarket.ss."
+                : "Payment due within 7 days of issue. Goods remain the property of AgriMarket South Sudan until paid in full. For questions about this invoice, contact billing@agrimarket.ss."}
         </div>
       </div>
 
