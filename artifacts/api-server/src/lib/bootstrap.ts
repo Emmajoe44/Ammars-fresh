@@ -1,9 +1,16 @@
 import { db, usersTable } from "@workspace/db";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import crypto from "crypto";
 import { logger } from "./logger";
 
 function hashPassword(password: string): string {
+  return crypto
+    .createHash("sha256")
+    .update(password + "agrimarket_salt")
+    .digest("hex");
+}
+
+function legacyHashPassword(password: string): string {
   return crypto
     .createHash("sha256")
     .update(password + "agri-salt-2024")
@@ -56,7 +63,25 @@ export async function bootstrapDemoData(): Promise<void> {
       .select({ count: sql<number>`count(*)` })
       .from(usersTable);
 
-    if (Number(count) > 0) return;
+    if (Number(count) > 0) {
+      // Self-heal: re-hash demo accounts that still use the legacy salt.
+      let healed = 0;
+      for (const u of DEMO_USERS) {
+        const [existing] = await db
+          .select({ id: usersTable.id, passwordHash: usersTable.passwordHash })
+          .from(usersTable)
+          .where(eq(usersTable.phone, u.phone));
+        if (existing && existing.passwordHash === legacyHashPassword(u.password)) {
+          await db
+            .update(usersTable)
+            .set({ passwordHash: hashPassword(u.password) })
+            .where(eq(usersTable.id, existing.id));
+          healed++;
+        }
+      }
+      if (healed > 0) logger.info({ healed }, "Re-hashed demo accounts to new salt");
+      return;
+    }
 
     logger.info("Empty users table detected — seeding demo accounts");
 
