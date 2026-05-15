@@ -20,7 +20,7 @@ export default function FarmerProfile() {
   const updateMe = useUpdateMe();
 
   const form = useForm({
-    values: { name: me?.name ?? "", farmName: me?.farmName ?? "", location: me?.location ?? "", currency: me?.currency ?? "SSP", language: me?.language ?? "en" },
+    values: { name: me?.name ?? "", phone: me?.phone ?? "", farmName: me?.farmName ?? "", location: me?.location ?? "", currency: me?.currency ?? "SSP", language: me?.language ?? "en" },
   });
 
   const onSubmit = (values: any) => {
@@ -30,6 +30,10 @@ export default function FarmerProfile() {
         queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
         if (updated.language !== lang) setLang(updated.language as "en" | "ar");
         toast({ title: t("Profile updated", "تم التحديث") });
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.error || err?.message || "Failed to update";
+        toast({ title: t("Could not update profile", "تعذر تحديث الملف"), description: msg, variant: "destructive" });
       },
     });
   };
@@ -52,6 +56,12 @@ export default function FarmerProfile() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField control={form.control} name="name" render={({ field }) => (
                 <FormItem><FormLabel>{t("Full name", "الاسم")}</FormLabel><FormControl><Input data-testid="input-name" {...field} /></FormControl></FormItem>
+              )} />
+              <FormField control={form.control} name="phone" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" />{t("Phone number", "رقم الهاتف")}</FormLabel>
+                  <FormControl><Input type="tel" inputMode="tel" placeholder="+211 9XX XXX XXX" data-testid="input-phone" {...field} /></FormControl>
+                </FormItem>
               )} />
               <FormField control={form.control} name="farmName" render={({ field }) => (
                 <FormItem>
@@ -88,9 +98,6 @@ export default function FarmerProfile() {
               </Button>
             </form>
           </Form>
-        </div>
-        <div className="mt-4 bg-muted rounded-2xl p-4 text-sm text-muted-foreground flex items-center gap-2">
-          <Phone className="w-4 h-4" />{me?.phone}
         </div>
       </div>
     </AppLayout>

@@ -107,6 +107,7 @@ export const GetMeResponse = zod.object({
  */
 export const UpdateMeBody = zod.object({
   name: zod.string().optional(),
+  phone: zod.string().optional(),
   farmName: zod.string().nullish(),
   location: zod.string().nullish(),
   locationLat: zod.number().nullish(),
@@ -162,6 +163,7 @@ export const UpdateUserParams = zod.object({
 
 export const UpdateUserBody = zod.object({
   name: zod.string().optional(),
+  phone: zod.string().optional(),
   farmName: zod.string().nullish(),
   location: zod.string().nullish(),
   locationLat: zod.number().nullish(),

@@ -20,7 +20,7 @@ export default function RetailerProfile() {
   const updateMe = useUpdateMe();
 
   const form = useForm({
-    values: { name: me?.name ?? "", location: me?.location ?? "", currency: me?.currency ?? "SSP", language: me?.language ?? "en" },
+    values: { name: me?.name ?? "", phone: me?.phone ?? "", location: me?.location ?? "", currency: me?.currency ?? "SSP", language: me?.language ?? "en" },
   });
 
   const onSubmit = (values: any) => {
@@ -30,6 +30,10 @@ export default function RetailerProfile() {
         queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
         if (updated.language !== lang) setLang(updated.language as "en" | "ar");
         toast({ title: t("Profile updated", "تم تحديث الملف") });
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.error || err?.message || "Failed to update";
+        toast({ title: t("Could not update profile", "تعذر تحديث الملف"), description: msg, variant: "destructive" });
       },
     });
   };
@@ -55,6 +59,12 @@ export default function RetailerProfile() {
                 <FormItem>
                   <FormLabel className="flex items-center gap-1.5"><User className="w-3.5 h-3.5" />{t("Name", "الاسم")}</FormLabel>
                   <FormControl><Input data-testid="input-profile-name" {...field} /></FormControl>
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="phone" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" />{t("Phone number", "رقم الهاتف")}</FormLabel>
+                  <FormControl><Input type="tel" inputMode="tel" placeholder="+211 9XX XXX XXX" data-testid="input-profile-phone" {...field} /></FormControl>
                 </FormItem>
               )} />
               <FormField control={form.control} name="location" render={({ field }) => (
@@ -94,12 +104,6 @@ export default function RetailerProfile() {
           </Form>
         </div>
 
-        <div className="mt-4 bg-muted rounded-2xl p-4 text-sm">
-          <p className="flex items-center gap-2 text-muted-foreground">
-            <Phone className="w-4 h-4" />
-            {me?.phone}
-          </p>
-        </div>
       </div>
     </AppLayout>
   );

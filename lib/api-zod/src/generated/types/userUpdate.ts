@@ -10,6 +10,7 @@ import type { UserUpdateLanguage } from "./userUpdateLanguage";
 
 export interface UserUpdate {
   name?: string;
+  phone?: string;
   /** @nullable */
   farmName?: string | null;
   /** @nullable */

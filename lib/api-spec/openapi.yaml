@@ -827,6 +827,8 @@ components:
       properties:
         name:
           type: string
+        phone:
+          type: string
         farmName:
           type: ["string", "null"]
         location:

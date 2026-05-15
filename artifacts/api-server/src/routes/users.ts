@@ -57,7 +57,20 @@ router.patch("/users/me", authMiddleware, async (req, res): Promise<void> => {
   const parsed = UpdateMeBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: "Invalid input" }); return; }
   const userId = req.authUser!.userId;
-  const [user] = await db.update(usersTable).set(parsed.data).where(eq(usersTable.id, userId)).returning();
+  const data = { ...parsed.data };
+  if (typeof data.phone === "string") {
+    data.phone = data.phone.replace(/\s+/g, "");
+    if (!/^\+?\d{7,15}$/.test(data.phone)) {
+      res.status(400).json({ error: "Invalid phone number" });
+      return;
+    }
+    const [existing] = await db.select().from(usersTable).where(eq(usersTable.phone, data.phone)).limit(1);
+    if (existing && existing.id !== userId) {
+      res.status(409).json({ error: "Phone number already in use" });
+      return;
+    }
+  }
+  const [user] = await db.update(usersTable).set(data).where(eq(usersTable.id, userId)).returning();
   res.json(formatUser(user));
 });
 
