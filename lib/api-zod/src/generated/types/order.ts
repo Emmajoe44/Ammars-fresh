@@ -7,6 +7,7 @@
  */
 import type { OrderCurrency } from "./orderCurrency";
 import type { OrderItem } from "./orderItem";
+import type { OrderPaymentStatus } from "./orderPaymentStatus";
 import type { OrderStatus } from "./orderStatus";
 
 export interface Order {
@@ -21,6 +22,9 @@ export interface Order {
   /** @nullable */
   driverName?: string | null;
   status: OrderStatus;
+  paymentStatus?: OrderPaymentStatus;
+  /** @nullable */
+  paidAt?: string | null;
   totalSSP: number;
   totalUSD: number;
   currency: OrderCurrency;

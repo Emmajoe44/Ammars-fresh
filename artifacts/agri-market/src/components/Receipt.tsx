@@ -9,6 +9,8 @@ interface ReceiptItem {
 interface ReceiptOrder {
   id: number;
   status: string;
+  paymentStatus?: string | null;
+  paidAt?: string | null;
   createdAt: string;
   retailerName?: string | null;
   deliveryLocation?: string | null;

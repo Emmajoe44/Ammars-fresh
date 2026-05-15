@@ -9,12 +9,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Leaf, User, Phone, Lock, MapPin } from "lucide-react";
+import { Leaf, User, Phone, Lock, MapPin, AtSign } from "lucide-react";
 import { motion } from "framer-motion";
 
 const schema = z.object({
   name: z.string().min(2, "Name required"),
   phone: z.string().min(1, "Phone required"),
+  email: z.string().optional().refine(
+    (v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
+    "Enter a valid email"
+  ),
   password: z.string().min(6, "Min 6 characters"),
   role: z.enum(["farmer", "retailer"]),
   farmName: z.string().optional(),
@@ -29,13 +33,17 @@ export default function RegisterPage() {
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", phone: "", password: "", role: "retailer", farmName: "", location: "" },
+    defaultValues: { name: "", phone: "", email: "", password: "", role: "retailer", farmName: "", location: "" },
   });
 
   const role = form.watch("role");
 
   const onSubmit = (values: z.infer<typeof schema>) => {
-    const data = { ...values, phone: values.phone.replace(/\s+/g, "") };
+    const data = {
+      ...values,
+      phone: values.phone.replace(/\s+/g, ""),
+      email: values.email && values.email.trim() ? values.email.trim().toLowerCase() : null,
+    };
     registerMutation.mutate({ data }, {
       onSuccess: (data) => {
         login(data.token, data.user as Parameters<typeof login>[1]);
@@ -95,7 +103,20 @@ export default function RegisterPage() {
                   <FormControl>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input placeholder="+211 9XX XXX XXX" className="pl-10" data-testid="input-phone" {...field} />
+                      <Input placeholder="+211 9XX XXX XXX" className="pl-10" data-testid="input-phone" autoComplete="tel" {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name="email" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input type="email" placeholder="you@example.com" className="pl-10" data-testid="input-email" autoComplete="email" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />

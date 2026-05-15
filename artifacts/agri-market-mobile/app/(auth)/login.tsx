@@ -28,18 +28,20 @@ export default function LoginScreen() {
   const { signIn } = useAuth();
   const loginMutation = useLogin();
 
-  const [phone, setPhone] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
 
   const handleSubmit = async () => {
-    if (!phone.trim() || !password) {
-      Alert.alert("Missing info", "Please enter your phone number and password.");
+    if (!identifier.trim() || !password) {
+      Alert.alert("Missing info", "Please enter your email or phone and password.");
       return;
     }
     try {
+      const raw = identifier.trim();
+      const id = raw.includes("@") ? raw.toLowerCase() : raw.replace(/\s+/g, "");
       const response = await loginMutation.mutateAsync({
-        data: { phone: phone.replace(/\s+/g, ""), password },
+        data: { identifier: id, password },
       });
       await signIn(response.token, response.user as any);
       const role = response.user.role;
@@ -47,12 +49,12 @@ export default function LoginScreen() {
       else if (role === "admin") router.replace("/(admin)");
       else router.replace("/(retailer)");
     } catch {
-      Alert.alert("Login failed", "Invalid phone number or password.");
+      Alert.alert("Login failed", "Invalid email/phone or password.");
     }
   };
 
   const fillDemo = (p: string, pw: string) => {
-    setPhone(p);
+    setIdentifier(p);
     setPassword(pw);
   };
 
@@ -87,19 +89,20 @@ export default function LoginScreen() {
             </Text>
 
             <Text style={[styles.label, { color: colors.foreground, fontFamily: PJS.semibold }]}>
-              Phone number
+              Email or phone
             </Text>
             <View style={[styles.inputWrap, { backgroundColor: colors.background, borderColor: colors.border }]}>
-              <Feather name="phone" size={16} color={colors.mutedForeground} />
+              <Feather name="at-sign" size={16} color={colors.mutedForeground} />
               <TextInput
                 style={[styles.input, { color: colors.foreground, fontFamily: PJS.medium }]}
-                placeholder="+211 9XX XXX XXX"
+                placeholder="you@example.com or +211 9XX XXX XXX"
                 placeholderTextColor={colors.mutedForeground}
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
+                value={identifier}
+                onChangeText={setIdentifier}
+                keyboardType="email-address"
                 autoCapitalize="none"
-                autoComplete="tel"
+                autoCorrect={false}
+                autoComplete="username"
               />
             </View>
 

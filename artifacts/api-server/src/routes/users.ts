@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, usersTable } from "@workspace/db";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { authMiddleware, requireRole } from "../lib/auth";
 import { ListUsersQueryParams, UpdateMeBody, UpdateUserBody } from "@workspace/api-zod";
 
@@ -11,6 +11,7 @@ function formatUser(user: typeof usersTable.$inferSelect) {
     id: user.id,
     name: user.name,
     phone: user.phone,
+    email: user.email,
     role: user.role,
     farmName: user.farmName,
     location: user.location,
@@ -68,6 +69,22 @@ router.patch("/users/me", authMiddleware, async (req, res): Promise<void> => {
     if (existing && existing.id !== userId) {
       res.status(409).json({ error: "Phone number already in use" });
       return;
+    }
+  }
+  if (data.email !== undefined && data.email !== null) {
+    data.email = data.email.trim().toLowerCase();
+    if (data.email === "") {
+      data.email = null;
+    } else {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+        res.status(400).json({ error: "Invalid email address" });
+        return;
+      }
+      const [existing] = await db.select().from(usersTable).where(eq(usersTable.email, data.email)).limit(1);
+      if (existing && existing.id !== userId) {
+        res.status(409).json({ error: "Email already in use" });
+        return;
+      }
     }
   }
   const [user] = await db.update(usersTable).set(data).where(eq(usersTable.id, userId)).returning();

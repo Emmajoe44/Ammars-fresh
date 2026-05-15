@@ -10,7 +10,8 @@ export interface HealthStatus {
 }
 
 export interface LoginInput {
-  phone: string;
+  /** Email address or phone number */
+  identifier: string;
   password: string;
 }
 
@@ -33,6 +34,8 @@ export const RegisterInputLanguage = {
 export interface RegisterInput {
   name: string;
   phone: string;
+  /** @nullable */
+  email?: string | null;
   password: string;
   role: RegisterInputRole;
   /** @nullable */
@@ -68,6 +71,8 @@ export interface User {
   id: number;
   name: string;
   phone: string;
+  /** @nullable */
+  email?: string | null;
   role: UserRole;
   /** @nullable */
   farmName?: string | null;
@@ -107,6 +112,8 @@ export const UserUpdateCurrency = {
 export interface UserUpdate {
   name?: string;
   phone?: string;
+  /** @nullable */
+  email?: string | null;
   /** @nullable */
   farmName?: string | null;
   /** @nullable */
@@ -255,6 +262,14 @@ export const OrderStatus = {
   cancelled: "cancelled",
 } as const;
 
+export type OrderPaymentStatus =
+  (typeof OrderPaymentStatus)[keyof typeof OrderPaymentStatus];
+
+export const OrderPaymentStatus = {
+  unpaid: "unpaid",
+  paid: "paid",
+} as const;
+
 export type OrderCurrency = (typeof OrderCurrency)[keyof typeof OrderCurrency];
 
 export const OrderCurrency = {
@@ -274,6 +289,9 @@ export interface Order {
   /** @nullable */
   driverName?: string | null;
   status: OrderStatus;
+  paymentStatus?: OrderPaymentStatus;
+  /** @nullable */
+  paidAt?: string | null;
   totalSSP: number;
   totalUSD: number;
   currency: OrderCurrency;
@@ -323,8 +341,17 @@ export const OrderUpdateStatus = {
   cancelled: "cancelled",
 } as const;
 
+export type OrderUpdatePaymentStatus =
+  (typeof OrderUpdatePaymentStatus)[keyof typeof OrderUpdatePaymentStatus];
+
+export const OrderUpdatePaymentStatus = {
+  unpaid: "unpaid",
+  paid: "paid",
+} as const;
+
 export interface OrderUpdate {
   status?: OrderUpdateStatus;
+  paymentStatus?: OrderUpdatePaymentStatus;
   /** @nullable */
   notes?: string | null;
 }

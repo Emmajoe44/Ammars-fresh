@@ -8,11 +8,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Leaf, Phone, Lock } from "lucide-react";
+import { Leaf, AtSign, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 
 const schema = z.object({
-  phone: z.string().min(1, "Phone is required"),
+  identifier: z.string().min(1, "Email or phone is required"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -24,11 +24,13 @@ export default function LoginPage() {
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { phone: "", password: "" },
+    defaultValues: { identifier: "", password: "" },
   });
 
   const onSubmit = (values: z.infer<typeof schema>) => {
-    const data = { ...values, phone: values.phone.replace(/\s+/g, "") };
+    const raw = values.identifier.trim();
+    const identifier = raw.includes("@") ? raw.toLowerCase() : raw.replace(/\s+/g, "");
+    const data = { identifier, password: values.password };
     loginMutation.mutate({ data }, {
       onSuccess: (data) => {
         login(data.token, data.user as Parameters<typeof login>[1]);
@@ -38,7 +40,7 @@ export default function LoginPage() {
         else setLocation("/admin");
       },
       onError: () => {
-        toast({ title: "Login failed", description: "Invalid phone or password", variant: "destructive" });
+        toast({ title: "Login failed", description: "Invalid email/phone or password", variant: "destructive" });
       },
     });
   };
@@ -57,13 +59,13 @@ export default function LoginPage() {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField control={form.control} name="phone" render={({ field }) => (
+              <FormField control={form.control} name="identifier" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone number</FormLabel>
+                  <FormLabel>Email or phone</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input placeholder="+211 9XX XXX XXX" className="pl-10" data-testid="input-phone" {...field} />
+                      <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input placeholder="you@example.com or +211 9XX XXX XXX" className="pl-10" data-testid="input-identifier" autoComplete="username" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />

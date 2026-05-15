@@ -6,6 +6,7 @@ export interface AuthUser {
   id: number;
   name: string;
   phone: string;
+  email?: string | null;
   role: "admin" | "farmer" | "retailer";
   currency: "SSP" | "USD";
   language: "en" | "ar";

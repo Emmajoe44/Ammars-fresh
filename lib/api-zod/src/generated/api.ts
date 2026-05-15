@@ -18,7 +18,7 @@ export const HealthCheckResponse = zod.object({
  * @summary Login user
  */
 export const LoginBody = zod.object({
-  phone: zod.string(),
+  identifier: zod.string().describe("Email address or phone number"),
   password: zod.string(),
 });
 
@@ -28,6 +28,7 @@ export const LoginResponse = zod.object({
     id: zod.number(),
     name: zod.string(),
     phone: zod.string(),
+    email: zod.string().nullish(),
     role: zod.enum(["admin", "farmer", "retailer"]),
     farmName: zod.string().nullish(),
     location: zod.string().nullish(),
@@ -48,6 +49,7 @@ export const registerBodyLanguageDefault = `en`;
 export const RegisterBody = zod.object({
   name: zod.string(),
   phone: zod.string(),
+  email: zod.string().nullish(),
   password: zod.string(),
   role: zod.enum(["farmer", "retailer"]),
   farmName: zod.string().nullish(),
@@ -70,6 +72,7 @@ export const ListUsersResponse = zod.object({
       id: zod.number(),
       name: zod.string(),
       phone: zod.string(),
+      email: zod.string().nullish(),
       role: zod.enum(["admin", "farmer", "retailer"]),
       farmName: zod.string().nullish(),
       location: zod.string().nullish(),
@@ -91,6 +94,7 @@ export const GetMeResponse = zod.object({
   id: zod.number(),
   name: zod.string(),
   phone: zod.string(),
+  email: zod.string().nullish(),
   role: zod.enum(["admin", "farmer", "retailer"]),
   farmName: zod.string().nullish(),
   location: zod.string().nullish(),
@@ -108,6 +112,7 @@ export const GetMeResponse = zod.object({
 export const UpdateMeBody = zod.object({
   name: zod.string().optional(),
   phone: zod.string().optional(),
+  email: zod.string().nullish(),
   farmName: zod.string().nullish(),
   location: zod.string().nullish(),
   locationLat: zod.number().nullish(),
@@ -121,6 +126,7 @@ export const UpdateMeResponse = zod.object({
   id: zod.number(),
   name: zod.string(),
   phone: zod.string(),
+  email: zod.string().nullish(),
   role: zod.enum(["admin", "farmer", "retailer"]),
   farmName: zod.string().nullish(),
   location: zod.string().nullish(),
@@ -143,6 +149,7 @@ export const GetUserResponse = zod.object({
   id: zod.number(),
   name: zod.string(),
   phone: zod.string(),
+  email: zod.string().nullish(),
   role: zod.enum(["admin", "farmer", "retailer"]),
   farmName: zod.string().nullish(),
   location: zod.string().nullish(),
@@ -164,6 +171,7 @@ export const UpdateUserParams = zod.object({
 export const UpdateUserBody = zod.object({
   name: zod.string().optional(),
   phone: zod.string().optional(),
+  email: zod.string().nullish(),
   farmName: zod.string().nullish(),
   location: zod.string().nullish(),
   locationLat: zod.number().nullish(),
@@ -177,6 +185,7 @@ export const UpdateUserResponse = zod.object({
   id: zod.number(),
   name: zod.string(),
   phone: zod.string(),
+  email: zod.string().nullish(),
   role: zod.enum(["admin", "farmer", "retailer"]),
   farmName: zod.string().nullish(),
   location: zod.string().nullish(),
@@ -442,6 +451,8 @@ export const ListOrdersResponse = zod.object({
         "delivered",
         "cancelled",
       ]),
+      paymentStatus: zod.enum(["unpaid", "paid"]).optional(),
+      paidAt: zod.string().nullish(),
       totalSSP: zod.number(),
       totalUSD: zod.number(),
       currency: zod.enum(["SSP", "USD"]),
@@ -509,6 +520,8 @@ export const GetOrderResponse = zod.object({
     "delivered",
     "cancelled",
   ]),
+  paymentStatus: zod.enum(["unpaid", "paid"]).optional(),
+  paidAt: zod.string().nullish(),
   totalSSP: zod.number(),
   totalUSD: zod.number(),
   currency: zod.enum(["SSP", "USD"]),
@@ -548,6 +561,7 @@ export const UpdateOrderBody = zod.object({
       "cancelled",
     ])
     .optional(),
+  paymentStatus: zod.enum(["unpaid", "paid"]).optional(),
   notes: zod.string().nullish(),
 });
 
@@ -566,6 +580,8 @@ export const UpdateOrderResponse = zod.object({
     "delivered",
     "cancelled",
   ]),
+  paymentStatus: zod.enum(["unpaid", "paid"]).optional(),
+  paidAt: zod.string().nullish(),
   totalSSP: zod.number(),
   totalUSD: zod.number(),
   currency: zod.enum(["SSP", "USD"]),
@@ -613,6 +629,8 @@ export const AssignTruckToOrderResponse = zod.object({
     "delivered",
     "cancelled",
   ]),
+  paymentStatus: zod.enum(["unpaid", "paid"]).optional(),
+  paidAt: zod.string().nullish(),
   totalSSP: zod.number(),
   totalUSD: zod.number(),
   currency: zod.enum(["SSP", "USD"]),

@@ -12,6 +12,8 @@ export interface UserUpdate {
   name?: string;
   phone?: string;
   /** @nullable */
+  email?: string | null;
+  /** @nullable */
   farmName?: string | null;
   /** @nullable */
   location?: string | null;

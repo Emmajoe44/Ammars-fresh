@@ -7,7 +7,7 @@ import { Receipt } from "@/components/Receipt";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Truck, MapPin, Package, Printer, FileText } from "lucide-react";
+import { Truck, MapPin, Package, Printer, FileText, CheckCircle2, XCircle } from "lucide-react";
 import { useState } from "react";
 
 export default function AdminOrderDetail() {
@@ -43,8 +43,23 @@ export default function AdminOrderDetail() {
     });
   };
 
+  const handlePayment = (paymentStatus: "paid" | "unpaid") => {
+    updateOrder.mutate({ id, data: { paymentStatus } as any }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetOrderQueryKey(id) });
+        toast({
+          title: paymentStatus === "paid"
+            ? t("Payment confirmed", "تم تأكيد الدفع")
+            : t("Marked as unpaid", "تم وضع علامة غير مدفوع"),
+        });
+      },
+    });
+  };
+
   if (isLoading) return <AppLayout><div className="p-6"><div className="h-64 bg-muted rounded-2xl animate-pulse" /></div></AppLayout>;
   if (!order) return <AppLayout><div className="p-6 text-center text-muted-foreground">Order not found</div></AppLayout>;
+
+  const isPaid = (order as any).paymentStatus === "paid";
 
   const print = (type: "receipt" | "invoice") => {
     setDocType(type);
@@ -57,16 +72,63 @@ export default function AdminOrderDetail() {
       <div className="p-4 md:p-6 max-w-lg mx-auto no-print">
         <div className="flex items-start justify-between gap-3 mb-5">
           <h1 className="text-2xl font-extrabold text-foreground">{t("Order", "طلب")} #{order.id}</h1>
-          <div className="flex gap-2 shrink-0">
+          <div className="flex gap-2 shrink-0 flex-wrap justify-end">
             <Button size="sm" variant="outline" onClick={() => print("invoice")} data-testid="button-print-invoice">
               <FileText className="w-4 h-4 mr-1" />
               {t("Invoice", "فاتورة")}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => print("receipt")} data-testid="button-print-receipt">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => print("receipt")}
+              data-testid="button-print-receipt"
+              disabled={!isPaid}
+              title={isPaid ? "" : t("Confirm payment first", "أكد الدفع أولاً")}
+            >
               <Printer className="w-4 h-4 mr-1" />
               {t("Receipt", "إيصال")}
             </Button>
           </div>
+        </div>
+
+        {/* Payment status */}
+        <div className={`mb-4 rounded-2xl border p-4 flex items-center justify-between gap-3 ${isPaid ? "bg-primary/5 border-primary/30" : "bg-amber-50 border-amber-200"}`}>
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isPaid ? "bg-primary text-white" : "bg-amber-500 text-white"}`}>
+              {isPaid ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+            </div>
+            <div>
+              <p className="font-bold text-foreground">
+                {isPaid ? t("Payment received", "تم استلام الدفع") : t("Payment pending", "الدفع معلق")}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {isPaid
+                  ? t("Receipt with paid stamp can be issued", "يمكن إصدار إيصال بختم الدفع")
+                  : t("Only proforma invoice can be issued", "يمكن فقط إصدار فاتورة مبدئية")}
+              </p>
+            </div>
+          </div>
+          {isPaid ? (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handlePayment("unpaid")}
+              disabled={updateOrder.isPending}
+              data-testid="button-mark-unpaid"
+            >
+              {t("Mark unpaid", "وضع علامة غير مدفوع")}
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              onClick={() => handlePayment("paid")}
+              disabled={updateOrder.isPending}
+              data-testid="button-confirm-payment"
+            >
+              <CheckCircle2 className="w-4 h-4 mr-1" />
+              {t("Confirm payment", "تأكيد الدفع")}
+            </Button>
+          )}
         </div>
 
         <div className="space-y-4">

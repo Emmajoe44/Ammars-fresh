@@ -8,12 +8,15 @@ export const orderStatusEnum = pgEnum("order_status", [
   "pending", "confirmed", "assigned", "in_transit", "delivered", "cancelled"
 ]);
 export const orderCurrencyEnum = pgEnum("order_currency", ["SSP", "USD"]);
+export const paymentStatusEnum = pgEnum("payment_status", ["unpaid", "paid"]);
 
 export const ordersTable = pgTable("orders", {
   id: serial("id").primaryKey(),
   retailerId: integer("retailer_id").notNull().references(() => usersTable.id),
   truckId: integer("truck_id").references(() => trucksTable.id),
   status: orderStatusEnum("status").notNull().default("pending"),
+  paymentStatus: paymentStatusEnum("payment_status").notNull().default("unpaid"),
+  paidAt: timestamp("paid_at"),
   totalSSP: real("total_ssp").notNull(),
   totalUSD: real("total_usd").notNull(),
   currency: orderCurrencyEnum("currency").notNull().default("SSP"),

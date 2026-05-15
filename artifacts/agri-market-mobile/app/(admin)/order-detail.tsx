@@ -69,6 +69,16 @@ export default function AdminOrderDetail() {
     }
   };
 
+  const setPayment = async (paymentStatus: "paid" | "unpaid") => {
+    try {
+      await updateMutation.mutateAsync({ id, data: { paymentStatus } as any });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      refresh();
+    } catch {
+      Alert.alert("Failed", "Could not update payment status.");
+    }
+  };
+
   const assign = async (truckId: number) => {
     try {
       await assignMutation.mutateAsync({ id, data: { truckId } });
@@ -93,6 +103,8 @@ export default function AdminOrderDetail() {
   const total = currency === "USD" ? `$${Number(order.totalUSD ?? 0).toFixed(2)}` : `SSP ${Number(order.totalSSP ?? 0).toLocaleString()}`;
   const stepIndex = STATUS_FLOW.findIndex((s) => s.value === status);
   const availableTrucks = (trucks ?? []).filter((t) => t.status === "available" || t.id === order.truckId);
+  const isPaid = (order as any).paymentStatus === "paid";
+  const paidAt = (order as any).paidAt as string | null | undefined;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -132,6 +144,55 @@ export default function AdminOrderDetail() {
               );
             })}
           </View>
+        </Card>
+
+        {/* Payment status */}
+        <Text style={[styles.section, { color: colors.mutedForeground }]}>Payment</Text>
+        <Card>
+          <View style={styles.payRow}>
+            <View
+              style={[
+                styles.payBadge,
+                { backgroundColor: isPaid ? colors.primary : colors.warning },
+              ]}
+            >
+              <Feather name={isPaid ? "check-circle" : "alert-circle"} size={16} color="#fff" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.payTitle, { color: colors.foreground }]}>
+                {isPaid ? "Payment received" : "Payment pending"}
+              </Text>
+              <Text style={[styles.paySub, { color: colors.mutedForeground }]} numberOfLines={1}>
+                {isPaid && paidAt
+                  ? `Paid · ${new Date(paidAt).toLocaleString()}`
+                  : "Receipt unlocks once payment is confirmed"}
+              </Text>
+            </View>
+          </View>
+          <Pressable
+            onPress={() => setPayment(isPaid ? "unpaid" : "paid")}
+            disabled={updateMutation.isPending}
+            style={[
+              styles.payBtn,
+              {
+                backgroundColor: isPaid ? colors.muted : colors.primary,
+              },
+            ]}
+          >
+            <Feather
+              name={isPaid ? "rotate-ccw" : "check"}
+              size={14}
+              color={isPaid ? colors.foreground : "#fff"}
+            />
+            <Text
+              style={[
+                styles.payBtnTxt,
+                { color: isPaid ? colors.foreground : "#fff" },
+              ]}
+            >
+              {isPaid ? "Mark as unpaid" : "Confirm payment"}
+            </Text>
+          </Pressable>
         </Card>
 
         {/* Customer */}
@@ -334,4 +395,10 @@ const styles = StyleSheet.create({
   truckIcon: { width: 38, height: 38, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   truckPlate: { fontSize: 14, fontWeight: "700", letterSpacing: 0.5, fontVariant: ["tabular-nums"] },
   truckMeta: { fontSize: 12, marginTop: 2 },
+  payRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  payBadge: { width: 36, height: 36, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  payTitle: { fontSize: 14, fontWeight: "700" },
+  paySub: { fontSize: 12, marginTop: 2 },
+  payBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 12, paddingVertical: 10, borderRadius: 10 },
+  payBtnTxt: { fontSize: 13, fontWeight: "700" },
 });

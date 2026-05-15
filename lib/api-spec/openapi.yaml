@@ -752,10 +752,11 @@ components:
 
     LoginInput:
       type: object
-      required: [phone, password]
+      required: [identifier, password]
       properties:
-        phone:
+        identifier:
           type: string
+          description: Email address or phone number
         password:
           type: string
 
@@ -767,6 +768,8 @@ components:
           type: string
         phone:
           type: string
+        email:
+          type: ["string", "null"]
         password:
           type: string
         role:
@@ -800,6 +803,8 @@ components:
           type: string
         phone:
           type: string
+        email:
+          type: ["string", "null"]
         role:
           type: string
           enum: [admin, farmer, retailer]
@@ -829,6 +834,8 @@ components:
           type: string
         phone:
           type: string
+        email:
+          type: ["string", "null"]
         farmName:
           type: ["string", "null"]
         location:
@@ -1029,6 +1036,11 @@ components:
         status:
           type: string
           enum: [pending, confirmed, assigned, in_transit, delivered, cancelled]
+        paymentStatus:
+          type: string
+          enum: [unpaid, paid]
+        paidAt:
+          type: ["string", "null"]
         totalSSP:
           type: number
         totalUSD:
@@ -1079,6 +1091,9 @@ components:
         status:
           type: string
           enum: [pending, confirmed, assigned, in_transit, delivered, cancelled]
+        paymentStatus:
+          type: string
+          enum: [unpaid, paid]
         notes:
           type: ["string", "null"]
 

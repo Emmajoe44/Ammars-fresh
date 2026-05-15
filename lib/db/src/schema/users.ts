@@ -10,6 +10,7 @@ export const usersTable = pgTable("users", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   phone: text("phone").notNull().unique(),
+  email: text("email").unique(),
   passwordHash: text("password_hash").notNull(),
   role: roleEnum("role").notNull().default("retailer"),
   farmName: text("farm_name"),

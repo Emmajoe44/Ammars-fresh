@@ -4,6 +4,7 @@ interface AuthUser {
   id: number;
   name: string;
   phone: string;
+  email?: string | null;
   role: "admin" | "farmer" | "retailer";
   farmName?: string | null;
   location?: string | null;

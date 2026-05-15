@@ -5,10 +5,12 @@
  * AgriMarket South Sudan API
  * OpenAPI spec version: 0.1.0
  */
+import type { OrderUpdatePaymentStatus } from "./orderUpdatePaymentStatus";
 import type { OrderUpdateStatus } from "./orderUpdateStatus";
 
 export interface OrderUpdate {
   status?: OrderUpdateStatus;
+  paymentStatus?: OrderUpdatePaymentStatus;
   /** @nullable */
   notes?: string | null;
 }

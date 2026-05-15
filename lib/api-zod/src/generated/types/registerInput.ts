@@ -11,6 +11,8 @@ import type { RegisterInputRole } from "./registerInputRole";
 export interface RegisterInput {
   name: string;
   phone: string;
+  /** @nullable */
+  email?: string | null;
   password: string;
   role: RegisterInputRole;
   /** @nullable */

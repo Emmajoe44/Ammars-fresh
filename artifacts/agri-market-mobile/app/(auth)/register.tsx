@@ -35,6 +35,7 @@ export default function RegisterScreen() {
   const [role, setRole] = useState<Role>("retailer");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [location, setLocation] = useState("");
   const [farmName, setFarmName] = useState("");
@@ -42,7 +43,12 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     if (!name.trim() || !phone.trim() || !password.trim()) {
-      Alert.alert("Missing fields", "Please fill in all required fields.");
+      Alert.alert("Missing fields", "Please fill in your name, phone and password.");
+      return;
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    if (cleanEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      Alert.alert("Invalid email", "Please enter a valid email or leave it blank.");
       return;
     }
     try {
@@ -50,17 +56,18 @@ export default function RegisterScreen() {
         data: {
           name: name.trim(),
           phone: phone.replace(/\s+/g, ""),
+          email: cleanEmail || null,
           password,
           role,
           location: location.trim() || null,
           farmName: role === "farmer" ? (farmName.trim() || null) : null,
-        },
+        } as any,
       });
       await signIn(response.token, response.user as any);
       if (role === "farmer") router.replace("/(farmer)");
       else router.replace("/(retailer)");
     } catch {
-      Alert.alert("Registration failed", "This phone number may already be registered.");
+      Alert.alert("Registration failed", "This phone or email may already be registered.");
     }
   };
 
@@ -69,6 +76,7 @@ export default function RegisterScreen() {
   const fields: { label: string; value: string; onChange: (s: string) => void; placeholder: string; icon: React.ComponentProps<typeof Feather>["name"]; keyboardType?: any }[] = [
     { label: "Full name", value: name, onChange: setName, placeholder: "Your full name", icon: "user" },
     { label: "Phone number", value: phone, onChange: setPhone, placeholder: "+211 9XX XXX XXX", icon: "phone", keyboardType: "phone-pad" },
+    { label: "Email (optional)", value: email, onChange: setEmail, placeholder: "you@example.com", icon: "at-sign", keyboardType: "email-address" },
     { label: "Location", value: location, onChange: setLocation, placeholder: "e.g. Juba, Central Equatoria", icon: "map-pin" },
   ];
 
