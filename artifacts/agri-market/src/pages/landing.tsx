@@ -109,8 +109,15 @@ export default function LandingPage() {
                   {user ? t("Go to dashboard", "اذهب إلى لوحة التحكم") : t("Get started free", "ابدأ مجاناً")}
                   <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
                 </Button>
-                <Button size="lg" variant="outline" onClick={() => setLocation("/about")} className="font-semibold" data-testid="button-hero-secondary">
-                  {t("Learn more", "اعرف المزيد")}
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => setLocation("/about")}
+                  className="font-semibold"
+                  data-testid="button-hero-secondary"
+                  aria-label={t("Learn more about AgriMarket South Sudan", "اعرف المزيد عن أجريماركت جنوب السودان")}
+                >
+                  {t("About AgriMarket", "عن أجريماركت")}
                 </Button>
               </div>
 

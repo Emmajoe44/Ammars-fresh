@@ -92,9 +92,13 @@ export function PublicNav() {
               "جديد: تتبع الشاحنات المباشر متاح الآن للتجار",
             )}
           </span>
-          <Link href="/about" className="hidden sm:inline-flex items-center gap-1 font-bold underline-offset-2 hover:underline">
-            {t("Learn more", "اعرف المزيد")}
-            <ArrowRight className="w-3 h-3" />
+          <Link
+            href="/about"
+            className="hidden sm:inline-flex items-center gap-1 font-bold underline-offset-2 hover:underline"
+            aria-label={t("Learn more about live truck tracking for retailers", "اعرف المزيد عن تتبع الشاحنات المباشر للتجار")}
+          >
+            {t("Learn about truck tracking", "تعرّف على تتبع الشاحنات")}
+            <ArrowRight className="w-3 h-3" aria-hidden="true" />
           </Link>
         </div>
       </div>
