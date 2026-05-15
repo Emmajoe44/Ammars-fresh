@@ -8,10 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Tag, Plus } from "lucide-react";
+import { Tag, Plus, DollarSign } from "lucide-react";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useExchangeRate } from "@/lib/exchange-rate";
 
 const schema = z.object({
   categoryId: z.coerce.number().min(1),
@@ -30,6 +31,8 @@ export default function AdminPricing() {
   const { data: pricing, isLoading } = useListPricing({ query: { queryKey: getListPricingQueryKey() } });
   const { data: categories } = useListCategories();
   const createRule = useCreatePricingRule();
+  const [rate, setRate] = useExchangeRate();
+  const [rateDraft, setRateDraft] = useState<string>(String(rate));
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -61,6 +64,45 @@ export default function AdminPricing() {
             <Plus className="w-4 h-4" />
             {t("Add Rule", "إضافة قاعدة")}
           </Button>
+        </div>
+
+        <div className="bg-card border border-border rounded-2xl p-5 mb-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+              <DollarSign className="w-4 h-4 text-accent" />
+            </div>
+            <div>
+              <h2 className="font-bold">{t("USD → SSP exchange rate", "سعر صرف الدولار")}</h2>
+              <p className="text-xs text-muted-foreground">{t("Used to auto-fill product prices", "يستخدم لملء أسعار المنتجات تلقائيا")}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              step="0.01"
+              value={rateDraft}
+              onChange={e => setRateDraft(e.target.value)}
+              data-testid="input-exchange-rate"
+              className="max-w-[200px]"
+            />
+            <span className="text-sm text-muted-foreground">SSP / USD</span>
+            <Button
+              size="sm"
+              onClick={() => {
+                const n = parseFloat(rateDraft);
+                if (!Number.isFinite(n) || n <= 0) {
+                  toast({ title: t("Invalid rate", "سعر غير صالح"), variant: "destructive" });
+                  return;
+                }
+                setRate(n);
+                toast({ title: t("Exchange rate updated", "تم تحديث سعر الصرف") });
+              }}
+              data-testid="button-save-rate"
+              className="ml-auto"
+            >
+              {t("Save", "حفظ")}
+            </Button>
+          </div>
         </div>
 
         {showForm && (

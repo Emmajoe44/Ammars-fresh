@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ImageUpload } from "@/components/ImageUpload";
+import { useExchangeRate, usdToSsp } from "@/lib/exchange-rate";
 
 export default function FarmerEditProduct() {
   const { user } = useAuth();
@@ -26,6 +27,7 @@ export default function FarmerEditProduct() {
   const { data: categories } = useListCategories();
   const updateProduct = useUpdateProduct();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [rate] = useExchangeRate();
 
   const form = useForm({
     defaultValues: { name: "", nameAr: "", categoryId: 0, quantity: 0, unit: "kg", priceSSP: 0, priceUSD: 0, harvestDate: "", qualityGrade: "A" as "A" | "B" | "C", available: true },
@@ -105,12 +107,33 @@ export default function FarmerEditProduct() {
                   </FormItem>
                 )} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <FormField control={form.control} name="priceSSP" render={({ field }) => (
-                  <FormItem><FormLabel>SSP</FormLabel><FormControl><Input type="number" data-testid="input-price-ssp" {...field} /></FormControl></FormItem>
-                )} />
+              <div className="space-y-2">
                 <FormField control={form.control} name="priceUSD" render={({ field }) => (
-                  <FormItem><FormLabel>USD</FormLabel><FormControl><Input type="number" step="0.01" data-testid="input-price-usd" {...field} /></FormControl></FormItem>
+                  <FormItem>
+                    <FormLabel>{t("Price (USD)", "السعر بالدولار")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        data-testid="input-price-usd"
+                        {...field}
+                        onChange={e => {
+                          const usd = parseFloat(e.target.value) || 0;
+                          field.onChange(usd);
+                          form.setValue("priceSSP", usdToSsp(usd, rate));
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="priceSSP" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center justify-between">
+                      <span>{t("Price (SSP) — auto", "السعر بالجنيه — تلقائي")}</span>
+                      <span className="text-xs text-muted-foreground font-normal">@ {rate.toLocaleString()} SSP/USD</span>
+                    </FormLabel>
+                    <FormControl><Input type="number" data-testid="input-price-ssp" readOnly className="bg-muted/40" {...field} /></FormControl>
+                  </FormItem>
                 )} />
               </div>
               <FormField control={form.control} name="qualityGrade" render={({ field }) => (
