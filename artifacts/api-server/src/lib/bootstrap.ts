@@ -26,6 +26,13 @@ const DEMO_USERS = [
     location: "Juba",
   },
   {
+    name: "Super Admin",
+    phone: "+211911111111",
+    password: "Admin@2024",
+    role: "admin" as const,
+    location: "Juba HQ",
+  },
+  {
     name: "Akuei Deng",
     phone: "+211900000002",
     password: "farmer123",
