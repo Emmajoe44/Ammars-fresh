@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 export type ExchangeRates = {
   usdToSsp: number;
@@ -13,12 +14,20 @@ const DEFAULT_RATES: ExchangeRates = {
   updatedAt: new Date(0).toISOString(),
 };
 
+const serverDir = path.dirname(fileURLToPath(import.meta.url));
+const appRoot = path.resolve(serverDir, "../..");
+const repoRoot = path.resolve(appRoot, "../..");
+
 function ratesFilePath() {
-  return path.join(process.cwd(), ".local-storage", "exchange-rates.json");
+  return path.join(
+    /* turbopackIgnore: true */ appRoot,
+    ".local-storage",
+    "exchange-rates.json",
+  );
 }
 
 function configDefaultsPath() {
-  return path.join(process.cwd(), "..", "..", "config", "exchange-rates.json");
+  return path.join(repoRoot, "config", "exchange-rates.json");
 }
 
 async function readConfigDefaults(): Promise<Pick<ExchangeRates, "usdToSsp" | "usdToUsg">> {

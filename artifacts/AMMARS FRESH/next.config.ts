@@ -27,10 +27,10 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: workspaceRoot,
   outputFileTracingExcludes: {
     "*": [
-      "../../artifacts/agri-market-mobile/**",
       "../../artifacts/AMMARS FRESH-mobile/**",
+      "../../artifacts/agri-market-mobile/**",
       "../../artifacts/mockup-sandbox/**",
-      "../../artifacts/AMMARS FRESH/.local-storage/**",
+      "../../artifacts/agri-market/**",
       "../../scripts/**",
       "../../docker-compose.yml",
     ],
