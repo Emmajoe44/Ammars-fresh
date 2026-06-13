@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { authenticate } from "@/server/auth";
 import { usesLocalObjectStorage, usesBlobStorage } from "@/server/objectStorageMode";
 import { saveBlobObject } from "@/server/blobObjectStorage";
+import { saveLocalObjectViaRegistry } from "@/server/localObjectRegistry";
 
 export const dynamic = "force-dynamic";
 
@@ -37,8 +38,7 @@ export async function PUT(
     if (blobMode) {
       await saveBlobObject(relativePath, data, contentType);
     } else {
-      const { saveLocalObject } = await import("@/server/localObjectStorage");
-      saveLocalObject(relativePath, data, contentType);
+      saveLocalObjectViaRegistry(relativePath, data, contentType);
     }
     return new NextResponse(null, { status: 200 });
   } catch (error) {

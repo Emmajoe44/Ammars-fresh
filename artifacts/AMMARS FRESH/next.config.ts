@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
   // elsewhere on the machine.
   turbopack: { root: workspaceRoot },
   outputFileTracingRoot: workspaceRoot,
+  outputFileTracingExcludes: {
+    "*": [
+      "../../artifacts/agri-market-mobile/**",
+      "../../artifacts/mockup-sandbox/**",
+      "../../scripts/**",
+      "../../docker-compose.yml",
+    ],
+  },
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion", "@radix-ui/react-icons"],
   },

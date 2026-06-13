@@ -16,6 +16,7 @@ import {
   objectPathFromLocalUploadUrl,
 } from "./objectStorageUrls";
 import { downloadBlobObject } from "./blobObjectStorage";
+import { downloadLocalObjectViaRegistry } from "./localObjectRegistry";
 
 function createObjectStorageClient(): Storage {
   const projectId =
@@ -180,8 +181,7 @@ export class ObjectStorageService {
 
   async downloadObjectEntity(objectPath: string, cacheTtlSec: number = 3600): Promise<Response> {
     if (usesLocalObjectStorage()) {
-      const { downloadLocalObject } = await import("./localObjectStorage");
-      return downloadLocalObject(objectPath);
+      return downloadLocalObjectViaRegistry(objectPath);
     }
     if (usesBlobStorage()) {
       return downloadBlobObject(objectPath);
