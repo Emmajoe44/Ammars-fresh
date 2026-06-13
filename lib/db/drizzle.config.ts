@@ -3,7 +3,7 @@ import path from "path";
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
-    "DATABASE_URL is not set. Run `pnpm db:push` from the repo root (loads artifacts/AMMARS FRESH/.env).",
+    "DATABASE_URL is not set. Run `pnpm db:push` from the repo root (loads artifacts/ammars-fresh/.env).",
   );
 }
 

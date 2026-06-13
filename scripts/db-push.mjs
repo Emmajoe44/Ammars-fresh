@@ -24,7 +24,7 @@ function loadEnvFile(filePath) {
 }
 
 for (const file of [
-  path.join(repoRoot, "artifacts", "AMMARS FRESH", ".env"),
+  path.join(repoRoot, "artifacts", "ammars-fresh", ".env"),
   path.join(repoRoot, ".env"),
 ]) {
   loadEnvFile(file);
@@ -32,7 +32,7 @@ for (const file of [
 
 if (!process.env.DATABASE_URL) {
   console.error(
-    "DATABASE_URL is not set. Copy artifacts/AMMARS FRESH/.env.example to .env and start Postgres.",
+    "DATABASE_URL is not set. Copy artifacts/ammars-fresh/.env.example to .env and start Postgres.",
   );
   process.exit(1);
 }

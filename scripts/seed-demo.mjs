@@ -24,7 +24,7 @@ function loadEnvFile(filePath) {
 }
 
 for (const file of [
-  path.join(repoRoot, "artifacts", "AMMARS FRESH", ".env"),
+  path.join(repoRoot, "artifacts", "ammars-fresh", ".env"),
   path.join(repoRoot, ".env"),
 ]) {
   loadEnvFile(file);
@@ -35,7 +35,7 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-const artifactDir = path.join(repoRoot, "artifacts", "AMMARS FRESH");
+const artifactDir = path.join(repoRoot, "artifacts", "ammars-fresh");
 const result = spawnSync("pnpm", ["exec", "tsx", "src/server/seed-cli.ts"], {
   cwd: artifactDir,
   env: process.env,

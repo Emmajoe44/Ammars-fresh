@@ -12,12 +12,12 @@ Digital data-driven B2B agri-tech platform connecting South Sudan farmers with u
 ## Run & Operate
 
 - `pnpm install` — install workspace dependencies
-- `pnpm run dev` — Next.js web app (`artifacts/AMMARS FRESH`)
+- `pnpm run dev` — Next.js web app (`artifacts/ammars-fresh`)
 - `pnpm run dev:mobile` — Flutter app (`artifacts/AMMARS FRESH-mobile`)
 - `pnpm run build:mobile-apk` — Android debug APK
 - `pnpm run apply:updates` — apply `config/project-updates.json`
 - `pnpm --filter @workspace/ammars-fresh run setup:gcs` — GCS object storage setup
-- Required env: `DATABASE_URL` in `artifacts/AMMARS FRESH/.env`
+- Required env: `DATABASE_URL` in `artifacts/ammars-fresh/.env`
 
 ### Database (PostgreSQL)
 
@@ -44,7 +44,7 @@ Check connectivity: `pnpm db:check`
 
 | Folder | Purpose |
 |--------|---------|
-| `artifacts/AMMARS FRESH` | Next.js web + API |
+| `artifacts/ammars-fresh` | Next.js web + API |
 | `artifacts/AMMARS FRESH-mobile` | Flutter Android app |
 
 > If `artifacts/agri-market` still exists (legacy copy), stop any dev server using it and delete that folder manually.

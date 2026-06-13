@@ -1,4 +1,4 @@
-# Creates a GCS bucket + service account for AMMARS FRESH uploads and updates artifacts/AMMARS FRESH/.env
+# Creates a GCS bucket + service account for AMMARS FRESH uploads and updates artifacts/ammars-fresh/.env
 #
 # Prerequisites:
 #   winget install Google.CloudSDK
@@ -18,7 +18,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
-$appDir = Join-Path $repoRoot "artifacts\AMMARS FRESH"
+$appDir = Join-Path $repoRoot "artifacts\ammars-fresh"
 $gcpDir = Join-Path $appDir "gcp"
 $keyFile = Join-Path $gcpDir "service-account.json"
 $envFile = Join-Path $appDir ".env"

@@ -14,7 +14,7 @@ const defaultUpdatesPath = path.join(root, "config", "project-updates.json");
 
 const artifacts = fs.existsSync(artifactsPath)
   ? JSON.parse(fs.readFileSync(artifactsPath, "utf8"))
-  : { webDir: "AMMARS FRESH", mobileDir: "AMMARS FRESH-mobile" };
+  : { webDir: "ammars-fresh", mobileDir: "AMMARS FRESH-mobile" };
 
 const args = process.argv.slice(2);
 const fileArg = args.indexOf("--file");

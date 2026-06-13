@@ -32,7 +32,7 @@ if (-not ($dbExists -match "1")) {
   & $psql -U postgres -h localhost -p 5432 -c "CREATE DATABASE agrimarket"
 }
 
-$envFile = Join-Path $PSScriptRoot "..\artifacts\AMMARS FRESH\.env"
+$envFile = Join-Path $PSScriptRoot "..\artifacts\ammars-fresh\.env"
 $url = "postgres://postgres:postgres@localhost:5432/agrimarket"
 if (Test-Path $envFile) {
   $content = Get-Content $envFile -Raw
@@ -44,7 +44,7 @@ if (Test-Path $envFile) {
   Set-Content -Path $envFile -Value $content.TrimEnd() -NoNewline
   Add-Content -Path $envFile -Value "`n"
 } else {
-  Copy-Item (Join-Path $PSScriptRoot "..\artifacts\AMMARS FRESH\.env.example") $envFile
+  Copy-Item (Join-Path $PSScriptRoot "..\artifacts\ammars-fresh\.env.example") $envFile
   (Get-Content $envFile -Raw) -replace "DATABASE_URL=.*", "DATABASE_URL=$url" | Set-Content $envFile
 }
 

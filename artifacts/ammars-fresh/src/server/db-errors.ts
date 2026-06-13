@@ -17,7 +17,7 @@ export function dbUnavailableResponse() {
   return Response.json(
     {
       error:
-        "Database is not available. Start PostgreSQL (pnpm db:up) and ensure DATABASE_URL in artifacts/AMMARS FRESH/.env is correct.",
+        "Database is not available. Start PostgreSQL (pnpm db:up) and ensure DATABASE_URL in artifacts/ammars-fresh/.env is correct.",
     },
     { status: 503 },
   );

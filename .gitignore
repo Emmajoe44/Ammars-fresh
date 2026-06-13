@@ -54,7 +54,7 @@ Thumbs.db
 .local-storage
 
 # GCS service account keys (never commit)
-artifacts/AMMARS FRESH/gcp/*.json
+artifacts/ammars-fresh/gcp/*.json
 
 # Next.js
 .next/

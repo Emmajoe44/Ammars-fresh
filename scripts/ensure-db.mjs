@@ -24,7 +24,7 @@ function loadEnvFile(filePath) {
   }
 }
 
-loadEnvFile(path.join(repoRoot, "artifacts", "AMMARS FRESH", ".env"));
+loadEnvFile(path.join(repoRoot, "artifacts", "ammars-fresh", ".env"));
 
 function parsePort(url) {
   try {
@@ -69,7 +69,7 @@ async function main() {
       `PostgreSQL is on port ${fallbackPort} but DATABASE_URL uses ${port}.`,
     );
     console.warn(
-      `Update artifacts/AMMARS FRESH/.env to: postgres://postgres:postgres@localhost:${fallbackPort}/agrimarket`,
+      `Update artifacts/ammars-fresh/.env to: postgres://postgres:postgres@localhost:${fallbackPort}/agrimarket`,
     );
     return;
   }
@@ -96,7 +96,7 @@ Cannot connect to PostgreSQL on port ${port}.
 Fix options:
   1. Docker:  install Docker Desktop, then run  pnpm db:up
   2. Native:  install PostgreSQL 17, start the service, create database "agrimarket",
-              then set DATABASE_URL in artifacts/AMMARS FRESH/.env
+              then set DATABASE_URL in artifacts/ammars-fresh/.env
   3. Schema:  after Postgres is running, run  pnpm db:push
 
 Default URL: postgres://postgres:postgres@localhost:5433/agrimarket
