@@ -47,6 +47,8 @@ Thumbs.db
 # env files
 .env
 .env.local
+.env.vercel
+.env.vercel.*
 
 # Local object storage (dev uploads)
 .local-storage
@@ -59,3 +61,7 @@ artifacts/AMMARS FRESH/gcp/*.json
 
 # Legacy artifact copies (safe to delete locally)
 artifacts/agri-market/
+
+.vercel
+
+.vercel
