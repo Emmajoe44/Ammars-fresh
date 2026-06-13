@@ -6,7 +6,7 @@ import { AppLayout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import {
   Plus,
-  Truck,
+  Truck as TruckIcon,
   MapPin,
   Phone,
   Pencil,
@@ -82,7 +82,7 @@ export default function AdminTrucks() {
     const icon = size === "lg" ? "w-7 h-7" : size === "sm" ? "w-4 h-4" : "w-6 h-6";
     return (
       <div className={`${box} ${styles.box} flex items-center justify-center shrink-0`}>
-        <Truck className={`${icon} ${styles.icon}`} />
+        <TruckIcon className={`${icon} ${styles.icon}`} />
       </div>
     );
   };
@@ -224,7 +224,7 @@ export default function AdminTrucks() {
                             : "bg-red-500"
                       }`}
                     >
-                      <Truck className="w-3.5 h-3.5 text-white" />
+                      <TruckIcon className="w-3.5 h-3.5 text-white" />
                     </div>
                   </div>
                 );
@@ -253,7 +253,7 @@ export default function AdminTrucks() {
             </div>
           ) : filteredTrucks.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <Truck className="w-10 h-10 mx-auto mb-2 opacity-40" />
+              <TruckIcon className="w-10 h-10 mx-auto mb-2 opacity-40" />
               <p>{t("No trucks match this filter", "لا توجد شاحنات تطابق هذا التصفية")}</p>
             </div>
           ) : view === "grid" ? (
