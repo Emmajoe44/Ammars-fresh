@@ -1,3 +1,8 @@
+import {
+  saveLocalObject,
+  downloadLocalObject,
+} from "./localObjectStorage";
+
 export type LocalObjectSaveFn = (
   relativePath: string,
   data: Buffer,
@@ -16,9 +21,6 @@ async function ensureLocalHandlers(): Promise<void> {
     initPromise = (async () => {
       const { usesLocalObjectStorage } = await import("./objectStorageMode");
       if (!usesLocalObjectStorage()) return;
-      const { saveLocalObject, downloadLocalObject } = await import(
-        "./localObjectStorage"
-      );
       saveFn = saveLocalObject;
       downloadFn = downloadLocalObject;
     })();

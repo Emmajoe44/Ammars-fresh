@@ -6,6 +6,15 @@ import type { NextConfig } from "next";
 const rawBasePath = process.env.BASE_PATH?.replace(/\/$/, "") ?? "";
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const appDir = path.dirname(fileURLToPath(import.meta.url));
+const localObjectStorageStub = path.join(appDir, "src/server/localObjectStorage.stub.ts");
+
+const vercelStorageAliases: Record<string, string> | undefined = process.env.VERCEL
+  ? {
+      "@/server/localObjectStorage": "./src/server/localObjectStorage.stub.ts",
+      "./localObjectStorage": "./src/server/localObjectStorage.stub.ts",
+    }
+  : undefined;
 
 const nextConfig: NextConfig = {
   ...(rawBasePath ? { basePath: rawBasePath } : {}),
@@ -13,23 +22,29 @@ const nextConfig: NextConfig = {
   // elsewhere on the machine.
   turbopack: {
     root: workspaceRoot,
-    ...(process.env.VERCEL
-      ? {
-          resolveAlias: {
-            "@/server/localObjectStorage": "./src/server/localObjectStorage.stub.ts",
-            "./localObjectStorage": "./src/server/localObjectStorage.stub.ts",
-          },
-        }
-      : {}),
+    ...(vercelStorageAliases ? { resolveAlias: vercelStorageAliases } : {}),
   },
   outputFileTracingRoot: workspaceRoot,
   outputFileTracingExcludes: {
     "*": [
       "../../artifacts/agri-market-mobile/**",
+      "../../artifacts/AMMARS FRESH-mobile/**",
       "../../artifacts/mockup-sandbox/**",
+      "../../artifacts/AMMARS FRESH/.local-storage/**",
       "../../scripts/**",
       "../../docker-compose.yml",
     ],
+  },
+  webpack(config) {
+    if (process.env.VERCEL) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        "@/server/localObjectStorage": localObjectStorageStub,
+        [path.join(appDir, "src/server/localObjectStorage")]: localObjectStorageStub,
+        [path.join(appDir, "src/server/localObjectStorage.ts")]: localObjectStorageStub,
+      };
+    }
+    return config;
   },
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion", "@radix-ui/react-icons"],

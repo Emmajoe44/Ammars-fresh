@@ -29,7 +29,14 @@ function createObjectStorageClient(): Storage {
 
 export { ObjectNotFoundError } from "./objectErrors";
 
-export const objectStorageClient = createObjectStorageClient();
+let objectStorageClient: Storage | null = null;
+
+function getObjectStorageClient(): Storage {
+  if (!objectStorageClient) {
+    objectStorageClient = createObjectStorageClient();
+  }
+  return objectStorageClient;
+}
 
 export class ObjectStorageService {
   constructor() {}
@@ -69,7 +76,7 @@ export class ObjectStorageService {
       const fullPath = `${searchPath}/${filePath}`;
 
       const { bucketName, objectName } = parseObjectPath(fullPath);
-      const bucket = objectStorageClient.bucket(bucketName);
+      const bucket = getObjectStorageClient().bucket(bucketName);
       const file = bucket.file(objectName);
 
       const [exists] = await file.exists();
@@ -145,7 +152,7 @@ export class ObjectStorageService {
     }
     const objectEntityPath = `${entityDir}${entityId}`;
     const { bucketName, objectName } = parseObjectPath(objectEntityPath);
-    const bucket = objectStorageClient.bucket(bucketName);
+    const bucket = getObjectStorageClient().bucket(bucketName);
     const objectFile = bucket.file(objectName);
     const [exists] = await objectFile.exists();
     if (!exists) {
@@ -260,7 +267,7 @@ async function signObjectURL({
     HEAD: "read",
   } as const;
 
-  const file = objectStorageClient.bucket(bucketName).file(objectName);
+  const file = getObjectStorageClient().bucket(bucketName).file(objectName);
 
   try {
     const [signedURL] = await file.getSignedUrl({
