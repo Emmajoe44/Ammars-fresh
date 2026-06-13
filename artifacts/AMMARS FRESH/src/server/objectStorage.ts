@@ -181,7 +181,7 @@ export class ObjectStorageService {
 
   async downloadObjectEntity(objectPath: string, cacheTtlSec: number = 3600): Promise<Response> {
     if (usesLocalObjectStorage()) {
-      return downloadLocalObjectViaRegistry(objectPath);
+      return await downloadLocalObjectViaRegistry(objectPath);
     }
     if (usesBlobStorage()) {
       return downloadBlobObject(objectPath);

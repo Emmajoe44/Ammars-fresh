@@ -38,7 +38,7 @@ export async function PUT(
     if (blobMode) {
       await saveBlobObject(relativePath, data, contentType);
     } else {
-      saveLocalObjectViaRegistry(relativePath, data, contentType);
+      await saveLocalObjectViaRegistry(relativePath, data, contentType);
     }
     return new NextResponse(null, { status: 200 });
   } catch (error) {

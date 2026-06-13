@@ -11,7 +11,17 @@ const nextConfig: NextConfig = {
   ...(rawBasePath ? { basePath: rawBasePath } : {}),
   // Pin the monorepo root so Next doesn't infer it from stray lockfiles
   // elsewhere on the machine.
-  turbopack: { root: workspaceRoot },
+  turbopack: {
+    root: workspaceRoot,
+    ...(process.env.VERCEL
+      ? {
+          resolveAlias: {
+            "@/server/localObjectStorage": "./src/server/localObjectStorage.stub.ts",
+            "./localObjectStorage": "./src/server/localObjectStorage.stub.ts",
+          },
+        }
+      : {}),
+  },
   outputFileTracingRoot: workspaceRoot,
   outputFileTracingExcludes: {
     "*": [
