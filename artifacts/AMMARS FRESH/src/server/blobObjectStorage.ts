@@ -1,13 +1,4 @@
 import { put, head } from "@vercel/blob";
-import { getAppUrl } from "@/lib/app-url";
-
-export function usesBlobStorage(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-}
-
-export function getBlobUploadUrl(relativePath: string): string {
-  return `${getAppUrl()}/api/storage/uploads/put/${relativePath}`;
-}
 
 function blobKey(relativePath: string): string {
   return relativePath.replace(/^\/+/, "");

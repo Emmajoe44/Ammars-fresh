@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
   // Pin the monorepo root so Next doesn't infer it from stray lockfiles
   // elsewhere on the machine.
   turbopack: { root: workspaceRoot },
+  outputFileTracingRoot: workspaceRoot,
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion", "@radix-ui/react-icons"],
   },

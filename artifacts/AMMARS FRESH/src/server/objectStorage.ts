@@ -9,17 +9,13 @@ import {
   setObjectAclPolicy,
 } from "./objectAcl";
 import { ObjectNotFoundError } from "./objectErrors";
+import { usesLocalObjectStorage, usesBlobStorage } from "./objectStorageMode";
 import {
-  downloadLocalObject,
   getLocalUploadUrl,
-  objectPathFromLocalUploadUrl,
-  usesLocalObjectStorage,
-} from "./localObjectStorage";
-import {
-  usesBlobStorage,
-  downloadBlobObject,
   getBlobUploadUrl,
-} from "./blobObjectStorage";
+  objectPathFromLocalUploadUrl,
+} from "./objectStorageUrls";
+import { downloadBlobObject } from "./blobObjectStorage";
 
 function createObjectStorageClient(): Storage {
   const projectId =
@@ -184,6 +180,7 @@ export class ObjectStorageService {
 
   async downloadObjectEntity(objectPath: string, cacheTtlSec: number = 3600): Promise<Response> {
     if (usesLocalObjectStorage()) {
+      const { downloadLocalObject } = await import("./localObjectStorage");
       return downloadLocalObject(objectPath);
     }
     if (usesBlobStorage()) {

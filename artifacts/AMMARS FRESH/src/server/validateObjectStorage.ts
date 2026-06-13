@@ -1,5 +1,4 @@
-import { usesLocalObjectStorage } from "./localObjectStorage";
-import { usesBlobStorage } from "./blobObjectStorage";
+import { usesLocalObjectStorage, usesBlobStorage } from "@/server/objectStorageMode";
 
 export function validateObjectStorageConfig(): void {
   if (usesLocalObjectStorage()) {

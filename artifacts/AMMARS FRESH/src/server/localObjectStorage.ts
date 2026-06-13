@@ -1,14 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { getAppUrl } from "@/lib/app-url";
 import { ObjectNotFoundError } from "./objectErrors";
-
-export function usesLocalObjectStorage(): boolean {
-  if (process.env.USE_LOCAL_OBJECT_STORAGE === "false") return false;
-  // Serverless: ephemeral filesystem — use Vercel Blob or GCS instead.
-  if (process.env.VERCEL) return false;
-  return !process.env.PRIVATE_OBJECT_DIR;
-}
 
 export function getLocalStorageRoot(): string {
   const root =
@@ -67,23 +59,3 @@ export function downloadLocalObject(objectPath: string): Response {
   });
 }
 
-export function getLocalUploadUrl(relativePath: string): string {
-  return `${getAppUrl()}/api/storage/uploads/put/${relativePath}`;
-}
-
-export function objectPathFromLocalUploadUrl(uploadUrl: string): string | null {
-  try {
-    const url = new URL(uploadUrl);
-    const marker = "/api/storage/uploads/put/";
-    const idx = url.pathname.indexOf(marker);
-    if (idx === -1) return null;
-    const relative = url.pathname.slice(idx + marker.length);
-    return `/objects/${relative}`;
-  } catch {
-    if (uploadUrl.includes("/api/storage/uploads/put/")) {
-      const relative = uploadUrl.split("/api/storage/uploads/put/")[1];
-      return relative ? `/objects/${relative}` : null;
-    }
-    return null;
-  }
-}
