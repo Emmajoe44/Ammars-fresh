@@ -1,0 +1,14 @@
+# Local build/cache (GitHub deploys rebuild on Vercel)
+.next
+node_modules
+.turbo
+.local-storage
+
+# Secrets and pulled env files
+.env
+.env.*
+!.env.example
+
+# Dev-only
+*.log
+coverage
