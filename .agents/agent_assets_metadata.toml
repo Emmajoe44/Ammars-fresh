@@ -1,8 +1,0 @@
-uploads = []
-outputs = []
-
-[[generated]]
-id = "iResiybQDp-RAEm6YuaIi"
-uri = "file://artifacts/agri-market-mobile/assets/images/icon.png"
-type = "image"
-title = "agrimarket mobile app icon"

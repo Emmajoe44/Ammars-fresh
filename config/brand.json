@@ -1,0 +1,23 @@
+{
+  "projectName": "AMMARS FRESH",
+  "projectNameAr": "أمارز فرش",
+  "legalName": "AMMARS FRESH",
+  "tagline": "Digital data-driven B2B agri-tech platform",
+  "taglineAr": "منصة زراعية رقمية مدعومة بالبيانات للأعمال بين الشركات",
+  "country": "South Sudan",
+  "currencies": [
+    "USD",
+    "SSP",
+    "USG"
+  ],
+  "defaultCurrency": "SSP",
+  "supportEmail": "hello@ammarsfresh.ss",
+  "salesEmail": "sales@ammarsfresh.ss",
+  "billingEmail": "billing@ammarsfresh.ss",
+  "website": "www.ammarsfresh.ss",
+  "metaDescription": "AMMARS FRESH is a digital, data-driven B2B agri-tech platform connecting South Sudan farmers with urban retailers in Juba. Smart data and AI streamline produce distribution across South Sudan.",
+  "city": "Juba",
+  "mission": "To solve the post-harvest and other losses that farmers face in South Sudan by digitalizing the supply chain.",
+  "missionAr": "حل خسائر ما بعد الحصاد والخسائر الأخرى التي يواجهها المزارعون في جنوب السودان من خلال رقمنة سلسلة التوريد.",
+  "vision": "An intuitive app and website for customers and farmers to use anywhere, anytime — eliminating physical trips and the old middleman system."
+}

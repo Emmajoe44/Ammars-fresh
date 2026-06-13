@@ -4,7 +4,7 @@ import { z } from "zod/v4";
 
 export const roleEnum = pgEnum("role", ["admin", "farmer", "retailer"]);
 export const languageEnum = pgEnum("language", ["en", "ar"]);
-export const currencyEnum = pgEnum("currency", ["SSP", "USD"]);
+export const currencyEnum = pgEnum("currency", ["SSP", "USD", "USG"]);
 
 export const usersTable = pgTable("users", {
   id: serial("id").primaryKey(),

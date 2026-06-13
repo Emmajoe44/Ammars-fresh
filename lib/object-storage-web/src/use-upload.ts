@@ -88,19 +88,30 @@ export function useUpload(options: UseUploadOptions = {}) {
 
   const uploadToPresignedUrl = useCallback(
     async (file: File, uploadURL: string): Promise<void> => {
-      const response = await fetch(uploadURL, {
+      const url =
+        uploadURL.startsWith("http://") || uploadURL.startsWith("https://")
+          ? uploadURL
+          : `${window.location.origin}${uploadURL.startsWith("/") ? "" : "/"}${uploadURL}`;
+
+      const headers: Record<string, string> = {
+        "Content-Type": file.type || "application/octet-stream",
+      };
+      // App-hosted local PUT requires the same auth as request-url; GCS presigned URLs do not.
+      if (url.includes("/api/storage/uploads/put/")) {
+        Object.assign(headers, options.getRequestHeaders?.() ?? {});
+      }
+
+      const response = await fetch(url, {
         method: "PUT",
         body: file,
-        headers: {
-          "Content-Type": file.type || "application/octet-stream",
-        },
+        headers,
       });
 
       if (!response.ok) {
         throw new Error("Failed to upload file to storage");
       }
     },
-    []
+    [options]
   );
 
   const uploadFile = useCallback(
@@ -156,13 +167,19 @@ export function useUpload(options: UseUploadOptions = {}) {
       }
 
       const data = await response.json();
+      const putHeaders: Record<string, string> = {
+        "Content-Type": file.type || "application/octet-stream",
+      };
+      if (String(data.uploadURL).includes("/api/storage/uploads/put/")) {
+        Object.assign(putHeaders, options.getRequestHeaders?.() ?? {});
+      }
       return {
         method: "PUT",
         url: data.uploadURL,
-        headers: { "Content-Type": file.type || "application/octet-stream" },
+        headers: putHeaders,
       };
     },
-    []
+    [basePath, options]
   );
 
   return {

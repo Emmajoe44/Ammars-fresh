@@ -44,6 +44,18 @@ Thumbs.db
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 
-# Replit
-.cache/
-.local/
+# env files
+.env
+.env.local
+
+# Local object storage (dev uploads)
+.local-storage
+
+# GCS service account keys (never commit)
+artifacts/AMMARS FRESH/gcp/*.json
+
+# Next.js
+.next/
+
+# Legacy artifact copies (safe to delete locally)
+artifacts/agri-market/

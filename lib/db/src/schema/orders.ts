@@ -7,7 +7,7 @@ import { trucksTable } from "./trucks";
 export const orderStatusEnum = pgEnum("order_status", [
   "pending", "confirmed", "assigned", "in_transit", "delivered", "cancelled"
 ]);
-export const orderCurrencyEnum = pgEnum("order_currency", ["SSP", "USD"]);
+export const orderCurrencyEnum = pgEnum("order_currency", ["SSP", "USD", "USG"]);
 export const paymentStatusEnum = pgEnum("payment_status", ["unpaid", "paid"]);
 
 export const ordersTable = pgTable("orders", {

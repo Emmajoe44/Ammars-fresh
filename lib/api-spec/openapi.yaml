@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: Api
+  title: AMMARS FRESH API
   version: 0.1.0
-  description: AgriMarket South Sudan API
+  description: AMMARS FRESH API
 servers:
   - url: /api
     description: Base API path
@@ -269,7 +269,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [SSP, USD]
+            enum: [SSP, USD, USG]
         - name: page
           in: query
           schema:
@@ -840,7 +840,7 @@ components:
           enum: [en, ar]
         currency:
           type: string
-          enum: [SSP, USD]
+          enum: [SSP, USD, USG]
         isActive:
           type: boolean
         avatarUrl:
@@ -870,7 +870,7 @@ components:
           enum: [en, ar]
         currency:
           type: string
-          enum: [SSP, USD]
+          enum: [SSP, USD, USG]
         isActive:
           type: boolean
         avatarUrl:
@@ -1080,7 +1080,7 @@ components:
           type: number
         currency:
           type: string
-          enum: [SSP, USD]
+          enum: [SSP, USD, USG]
         deliveryLocation:
           type: ["string", "null"]
         deliveryLat:
@@ -1108,7 +1108,7 @@ components:
             $ref: "#/components/schemas/OrderItem"
         currency:
           type: string
-          enum: [SSP, USD]
+          enum: [SSP, USD, USG]
         deliveryLocation:
           type: ["string", "null"]
         deliveryLat:
@@ -1186,6 +1186,12 @@ components:
     TruckUpdate:
       type: object
       properties:
+        plateNumber:
+          type: string
+        driverName:
+          type: string
+        driverPhone:
+          type: string
         status:
           type: string
           enum: [available, in_transit, maintenance]
@@ -1193,10 +1199,6 @@ components:
           type: ["number", "null"]
         lng:
           type: ["number", "null"]
-        driverName:
-          type: string
-        driverPhone:
-          type: string
 
     AdminStats:
       type: object
@@ -1209,6 +1211,8 @@ components:
         revenueSSP:
           type: number
         revenueUSD:
+          type: number
+        revenueUSG:
           type: number
         totalFarmers:
           type: integer
@@ -1242,7 +1246,7 @@ components:
 
     FarmerStats:
       type: object
-      required: [totalProducts, activeProducts, totalSalesSSP, totalSalesUSD, ordersThisMonth, topProducts]
+      required: [totalProducts, activeProducts, totalSalesSSP, totalSalesUSD, totalSalesUSG, ordersThisMonth, topProducts]
       properties:
         totalProducts:
           type: integer
@@ -1251,6 +1255,8 @@ components:
         totalSalesSSP:
           type: number
         totalSalesUSD:
+          type: number
+        totalSalesUSG:
           type: number
         ordersThisMonth:
           type: integer
@@ -1261,7 +1267,7 @@ components:
 
     ProductSaleSummary:
       type: object
-      required: [productId, productName, totalQuantity, totalSSP, totalUSD]
+      required: [productId, productName, totalQuantity, totalSSP, totalUSD, totalUSG]
       properties:
         productId:
           type: integer
@@ -1272,6 +1278,8 @@ components:
         totalSSP:
           type: number
         totalUSD:
+          type: number
+        totalUSG:
           type: number
 
     PricingRule:

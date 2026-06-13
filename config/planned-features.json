@@ -1,0 +1,25 @@
+{
+  "source": "rob ammars fresh.docx",
+  "implemented": [
+    "Three-role ecosystem: retailer, farmer/supplier, admin/logistics",
+    "English and Arabic UI",
+    "Multi-currency display (SSP, USD; USG added to preferences)",
+    "Order history and invoices",
+    "Admin command center with trucks, inventory, and sales data",
+    "Dynamic pricing rules in admin panel",
+    "Demand analytics",
+    "Delivery location on orders",
+    "Authentication and order tracking"
+  ],
+  "planned": [
+    "Offline-first sync when 3G/4G returns",
+    "AI-powered logistics engine and demand forecasting",
+    "Slot-based delivery scheduling at checkout",
+    "Special instruction notifications for warehouse staff",
+    "Easy return and refund workflow",
+    "Demand aggregation from historical retailer patterns",
+    "Unified HR/accounting modules in one database",
+    "Icon-heavy UI mode for low-literacy users",
+    "Dedicated USG price fields and exchange rates"
+  ]
+}

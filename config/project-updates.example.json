@@ -1,0 +1,15 @@
+{
+  "projectName": "AMMARS FRESH",
+  "projectNameAr": "أمارز فرش",
+  "legalName": "AMMARS FRESH South Sudan",
+  "tagline": "Farm to market",
+  "taglineAr": "من المزرعة إلى السوق",
+  "country": "South Sudan",
+  "currencies": ["SSP", "USD"],
+  "defaultCurrency": "SSP",
+  "supportEmail": "hello@ammarsfresh.ss",
+  "salesEmail": "sales@ammarsfresh.ss",
+  "billingEmail": "billing@ammarsfresh.ss",
+  "website": "www.ammarsfresh.ss",
+  "metaDescription": "Optional longer site description for SEO."
+}
