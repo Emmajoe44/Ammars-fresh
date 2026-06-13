@@ -19,13 +19,23 @@ function requireDatabaseUrl(): string {
   return url;
 }
 
+function needsSsl(connectionString: string): boolean {
+  return (
+    connectionString.includes("neon.tech") ||
+    connectionString.includes("sslmode=require") ||
+    connectionString.includes("ssl=true")
+  );
+}
+
 function getPool(): pg.Pool {
   if (!pool) {
+    const connectionString = requireDatabaseUrl();
     pool = new Pool({
-      connectionString: requireDatabaseUrl(),
+      connectionString,
       connectionTimeoutMillis: 8_000,
       idleTimeoutMillis: 30_000,
-      max: 10,
+      max: process.env.VERCEL ? 1 : 10,
+      ssl: needsSsl(connectionString) ? { rejectUnauthorized: false } : undefined,
     });
   }
   return pool;

@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
     "@workspace/db",
     "@workspace/api-zod",
   ],
-  serverExternalPackages: ["pg", "@google-cloud/storage"],
+  serverExternalPackages: ["pg", "@google-cloud/storage", "@vercel/blob"],
 };
 
 export default nextConfig;

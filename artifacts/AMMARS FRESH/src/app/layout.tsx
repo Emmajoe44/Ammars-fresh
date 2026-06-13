@@ -2,11 +2,12 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { brand } from "@/lib/brand";
+import { getAppUrl } from "@/lib/app-url";
 
 const pageTitle = `${brand.legalName} — Fresh Produce Marketplace`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(getAppUrl()),
   title: pageTitle,
   description: brand.metaDescription,
   keywords:

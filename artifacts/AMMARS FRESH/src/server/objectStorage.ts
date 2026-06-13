@@ -15,6 +15,11 @@ import {
   objectPathFromLocalUploadUrl,
   usesLocalObjectStorage,
 } from "./localObjectStorage";
+import {
+  usesBlobStorage,
+  downloadBlobObject,
+  getBlobUploadUrl,
+} from "./blobObjectStorage";
 
 function createObjectStorageClient(): Storage {
   const projectId =
@@ -106,6 +111,10 @@ export class ObjectStorageService {
       return getLocalUploadUrl(relativePath);
     }
 
+    if (usesBlobStorage()) {
+      return getBlobUploadUrl(relativePath);
+    }
+
     const privateObjectDir = this.getPrivateObjectDir();
     const fullPath = `${privateObjectDir}/${relativePath}`;
     const { bucketName, objectName } = parseObjectPath(fullPath);
@@ -176,6 +185,9 @@ export class ObjectStorageService {
   async downloadObjectEntity(objectPath: string, cacheTtlSec: number = 3600): Promise<Response> {
     if (usesLocalObjectStorage()) {
       return downloadLocalObject(objectPath);
+    }
+    if (usesBlobStorage()) {
+      return downloadBlobObject(objectPath);
     }
     const objectFile = await this.getObjectEntityFile(objectPath);
     return this.downloadObject(objectFile, cacheTtlSec);

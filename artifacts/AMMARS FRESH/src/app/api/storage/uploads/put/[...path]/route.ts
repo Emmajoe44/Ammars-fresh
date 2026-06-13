@@ -1,18 +1,20 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { authenticate } from "@/server/auth";
 import { saveLocalObject, usesLocalObjectStorage } from "@/server/localObjectStorage";
+import { saveBlobObject, usesBlobStorage } from "@/server/blobObjectStorage";
 
 export const dynamic = "force-dynamic";
 
 /**
  * PUT /api/storage/uploads/put/...
- * Local-dev upload target (used when PRIVATE_OBJECT_DIR / GCS is not configured).
+ * Local-dev or Vercel Blob upload target (when GCS is not configured).
  */
 export async function PUT(
   req: NextRequest,
   context: { params: Promise<{ path: string[] }> },
 ) {
-  if (!usesLocalObjectStorage()) {
+  const blobMode = usesBlobStorage();
+  if (!usesLocalObjectStorage() && !blobMode) {
     return NextResponse.json({ error: "Not available" }, { status: 404 });
   }
 
@@ -32,7 +34,11 @@ export async function PUT(
     }
     const contentType =
       req.headers.get("content-type") ?? "application/octet-stream";
-    saveLocalObject(relativePath, data, contentType);
+    if (blobMode) {
+      await saveBlobObject(relativePath, data, contentType);
+    } else {
+      saveLocalObject(relativePath, data, contentType);
+    }
     return new NextResponse(null, { status: 200 });
   } catch (error) {
     console.error("Local upload failed", error);

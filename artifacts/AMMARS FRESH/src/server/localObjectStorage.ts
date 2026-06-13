@@ -1,16 +1,19 @@
 import fs from "fs";
 import path from "path";
+import { getAppUrl } from "@/lib/app-url";
 import { ObjectNotFoundError } from "./objectErrors";
 
 export function usesLocalObjectStorage(): boolean {
   if (process.env.USE_LOCAL_OBJECT_STORAGE === "false") return false;
+  // Serverless: ephemeral filesystem — use Vercel Blob or GCS instead.
+  if (process.env.VERCEL) return false;
   return !process.env.PRIVATE_OBJECT_DIR;
 }
 
 export function getLocalStorageRoot(): string {
   const root =
     process.env.LOCAL_OBJECT_STORAGE_DIR ??
-    path.join(process.cwd(), ".local-storage");
+    path.join(/* turbopackIgnore: true */ process.cwd(), ".local-storage");
   fs.mkdirSync(root, { recursive: true });
   return root;
 }
@@ -65,10 +68,7 @@ export function downloadLocalObject(objectPath: string): Response {
 }
 
 export function getLocalUploadUrl(relativePath: string): string {
-  const base = (
-    process.env.APP_URL ?? `http://localhost:${process.env.PORT ?? 3000}`
-  ).replace(/\/+$/, "");
-  return `${base}/api/storage/uploads/put/${relativePath}`;
+  return `${getAppUrl()}/api/storage/uploads/put/${relativePath}`;
 }
 
 export function objectPathFromLocalUploadUrl(uploadUrl: string): string | null {
